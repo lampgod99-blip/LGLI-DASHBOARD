@@ -212,35 +212,23 @@ tr:hover td{background:var(--bg3)}
 
 <!-- ⑤ VENDOR TAB -->
 <div id="vw-t5" class="vw">
-  <!-- KPI -->
   <div class="kg" id="t5-kpi"></div>
-
-  <!-- 차트 2개 -->
   <div class="g2">
     <div class="cd">
-      <div class="ct">Vehicle Type별 Trip 비중</div>
+      <div class="ct">벤더별 운행 비중 (Top 10)</div>
       <div style="position:relative;height:220px"><canvas id="c5a"></canvas></div>
     </div>
     <div class="cd">
-      <div class="ct">Vehicle Type별 Selling (juta)</div>
+      <div class="ct">벤더별 Selling Top 10 (juta)</div>
       <div style="position:relative;height:220px"><canvas id="c5b"></canvas></div>
     </div>
   </div>
-
-  <!-- Vehicle Type × Customer 매트릭스 -->
   <div class="cd">
-    <div class="ct">Vehicle Type × Customer — Trip 매트릭스</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">각 셀: 트립 수 · 괄호 안은 Selling(jt)</div>
+    <div class="ct">벤더별 운행 / Selling / Buying / Profit / Margin</div>
     <div class="tw" id="t5-matrix"></div>
   </div>
-
-  <!-- 목적지 × Vehicle Type (Apps Script 연동 후) -->
-  <div class="cd" id="t5-destvend-wrap">
-    <div class="ct">목적지 × Vendor — Selling / Profit / Margin</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">
-      목적지 클릭 → 벤더별 수익성 비교 &nbsp;|&nbsp;
-      <span id="t5-datasrc" style="color:var(--amb)">⚠ Apps Script 재배포 후 실데이터 표시</span>
-    </div>
+  <div class="cd">
+    <div class="ct">벤더 × 고객사 상세 (클릭 펼치기)</div>
     <div class="tw" id="t5-destvend"></div>
   </div>
 </div>
@@ -931,55 +919,52 @@ function loadLiveData() {
     return;
   }
 
-  // 로딩 표시
   document.getElementById('live-status').textContent = '⏳ 데이터 로딩 중...';
   document.getElementById('live-status').style.color = 'var(--amb)';
 
-  var url = APPS_SCRIPT_URL + '?type=all&_=' + Date.now();
+  // JSONP 방식 (CORS 우회)
+  var cbName = 'lgli_cb_' + Date.now();
+  var script = document.createElement('script');
+  var timeout = setTimeout(function() {
+    document.getElementById('live-status').textContent = '⚠ 하드코딩 데이터 (연결 실패)';
+    document.getElementById('live-status').style.color = 'var(--red)';
+    if (script.parentNode) script.parentNode.removeChild(script);
+    delete window[cbName];
+    renderAll();
+  }, 30000);
 
-  fetch(url)
-    .then(function(r) { return r.json(); })
-    .then(function(json) {
+  window[cbName] = function(json) {
+    clearTimeout(timeout);
+    if (script.parentNode) script.parentNode.removeChild(script);
+    delete window[cbName];
+
+    try {
       if (json.status !== 'ok') throw new Error(json.message);
       var d = json.data;
 
-      // MP: overview monthly → {ym, p, s, b, pf, t} 형태로 변환
-      if (d.overview && d.overview.monthly) {
-        // overview는 proyek별이 아닌 전체라서 MP는 기존 유지하고 월별 데이터만 참조
-      }
+      if (d.destinasi) window._destVendorData = d.destinasi.destVendor || null;
+      if (d.vendor)    window._vendorData = d.vendor;
 
-      // MC: customer 데이터 → {ym, p, c, s, b, pf, t}
-      if (d.customer && d.customer.length) {
-        // customer 데이터로 MC 재구성 — customer는 월별 아닌 누적이므로 YMS 기반으로 확장 불가
-        // → MC 필터는 고객/프로젝트 기반이므로 별도 처리
-      }
-
-      // destVendor 데이터 저장 (Vendor 탭용)
-      if (d.destinasi) {
-        window._destVendorData = d.destinasi.destVendor || null;
-      }
-
-      // 월 목록 업데이트 (새 데이터에 새 월이 있을 경우)
       if (d.overview && d.overview.monthly) {
         var months = d.overview.monthly.map(function(m){ return m.month; });
         updateMonthOptions(months);
       }
 
-      // 배지 업데이트
       var totalTrips = d.overview ? d.overview.totalTrips : 0;
       document.querySelector('.badge').textContent = '📊 Live · ' + totalTrips.toLocaleString() + ' records';
-
       document.getElementById('live-status').textContent = '✅ 실시간 데이터';
       document.getElementById('live-status').style.color = 'var(--grn)';
-
       renderAll();
-    })
-    .catch(function(e) {
-      console.warn('Live data load failed:', e.message);
-      document.getElementById('live-status').textContent = '⚠ 하드코딩 데이터 (연결 실패)';
+    } catch(e) {
+      console.warn('Live data error:', e.message);
+      document.getElementById('live-status').textContent = '⚠ 하드코딩 데이터 (오류)';
       document.getElementById('live-status').style.color = 'var(--red)';
       renderAll();
-    });
+    }
+  };
+
+  script.src = APPS_SCRIPT_URL + '?type=all&callback=' + cbName + '&_=' + Date.now();
+  document.head.appendChild(script);
 }
 
 function updateMonthOptions(months) {
@@ -1043,162 +1028,131 @@ function updateMonthOptions(months) {
 renderAll();
 // ══════════════════════════════════════════════
 function renderT5() {
-  var rows = filtMV();  // {ym, p, c, v(vehicleType), t, s}
-  var yms  = getYMs();
+  // Apps Script 실시간 데이터 사용
+  var vData = window._vendorData || null;
 
-  // ── KPI ──────────────────────────────────────
-  var vtypes = [];
-  rows.forEach(function(r){ if (vtypes.indexOf(r.v) < 0) vtypes.push(r.v); });
-  var totalTrips = rows.reduce(function(a,r){ return a+r.t; }, 0);
-  var totalSell  = rows.reduce(function(a,r){ return a+r.s; }, 0);
-  var topVtype   = (function(){
-    var m = {}; rows.forEach(function(r){ m[r.v]=(m[r.v]||0)+r.t; });
-    return Object.keys(m).sort(function(a,b){ return m[b]-m[a]; })[0]||'—';
-  })();
-
-  document.getElementById('t5-kpi').innerHTML =
-    kc('Vehicle Type','',vtypes.length+'종','') +
-    kc('총 운행','',fmt(totalTrips)+'건','') +
-    kc('총 Selling','','Rp '+fmtM(totalSell),'') +
-    kc('최다 Type','',topVtype,'');
-
-  // ── 차트 A: vehicle type 도넛 ────────────────
-  var vtMap = {};
-  rows.forEach(function(r){ vtMap[r.v]=(vtMap[r.v]||0)+r.t; });
-  var vtArr = Object.keys(vtMap).sort(function(a,b){ return vtMap[b]-vtMap[a]; });
-  mkChart('c5a','doughnut', vtArr, [{
-    data: vtArr.map(function(v){ return vtMap[v]; }),
-    backgroundColor: DC,
-    borderWidth: 2
-  }], { legend: true });
-
-  // ── 차트 B: vehicle type selling 바 ──────────
-  var vtSell = {};
-  rows.forEach(function(r){ vtSell[r.v]=(vtSell[r.v]||0)+r.s; });
-  mkChart('c5b','bar', vtArr, [{
-    label:'Selling', data: vtArr.map(function(v){ return Math.round(vtSell[v]/1e6*10)/10; }),
-    backgroundColor: DC.map(function(c){ return c+'CC'; }), borderRadius:3
-  }], { yCallback: function(v){ return v+'jt'; } });
-
-  // ── 매트릭스: Vehicle Type × Customer ────────
-  var custs = [];
-  rows.forEach(function(r){ if (custs.indexOf(r.c)<0) custs.push(r.c); });
-  // 고객 selling 합계 기준 정렬
-  var custSell = {};
-  rows.forEach(function(r){ custSell[r.c]=(custSell[r.c]||0)+r.s; });
-  custs.sort(function(a,b){ return custSell[b]-custSell[a]; });
-
-  var mat = '<table><thead><tr><th>Vehicle Type</th>';
-  custs.slice(0,10).forEach(function(c){ mat += '<th style="text-align:right;min-width:80px;font-size:10px">'+c+'</th>'; });
-  mat += '<th style="text-align:right">Total</th></tr></thead><tbody>';
-
-  vtArr.forEach(function(v, vi) {
-    var rowTrips = rows.filter(function(r){ return r.v===v; });
-    var totT = rowTrips.reduce(function(a,r){ return a+r.t; }, 0);
-    var totS = rowTrips.reduce(function(a,r){ return a+r.s; }, 0);
-    mat += '<tr><td style="font-weight:500"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+DC[vi%DC.length]+';margin-right:5px;vertical-align:middle"></span>'+v+'</td>';
-    custs.slice(0,10).forEach(function(c){
-      var cr = rowTrips.filter(function(r){ return r.c===c; });
-      var ct = cr.reduce(function(a,r){ return a+r.t; }, 0);
-      var cs = cr.reduce(function(a,r){ return a+r.s; }, 0);
-      mat += '<td style="text-align:right" class="num">'+(ct>0 ? ct+'<span style="color:var(--dim);font-size:9px;display:block">('+Math.round(cs/1e6)+'jt)</span>' : '—')+'</td>';
-    });
-    mat += '<td style="text-align:right;font-weight:500" class="num">'+totT+'<span style="color:var(--dim);font-size:9px;display:block">('+Math.round(totS/1e6)+'jt)</span></td></tr>';
-  });
-
-  // 합계 행
-  mat += '<tr style="border-top:2px solid var(--border)"><td style="font-weight:600">Total</td>';
-  custs.slice(0,10).forEach(function(c){
-    var cr = rows.filter(function(r){ return r.c===c; });
-    var ct = cr.reduce(function(a,r){ return a+r.t; }, 0);
-    var cs = cr.reduce(function(a,r){ return a+r.s; }, 0);
-    mat += '<td style="text-align:right;font-weight:600" class="num">'+ct+'<span style="color:var(--dim);font-size:9px;display:block">('+Math.round(cs/1e6)+'jt)</span></td>';
-  });
-  mat += '<td style="text-align:right;font-weight:600" class="num">'+totalTrips+'<span style="color:var(--dim);font-size:9px;display:block">('+Math.round(totalSell/1e6)+'jt)</span></td></tr>';
-  mat += '</tbody></table>';
-  document.getElementById('t5-matrix').innerHTML = mat;
-
-  // ── 목적지 × Vendor (Apps Script destVendor) ──
-  var dvData = null; // 하드코딩 데이터에는 Vendor 정보 없음
-
-  if (!dvData) {
-    document.getElementById('t5-datasrc').textContent = '⚠ Apps Script 재배포 후 Vendor×목적지 실데이터 표시';
-    document.getElementById('t5-destvend').innerHTML =
-      '<div style="padding:16px;color:var(--muted);font-size:12px">'+
-      'Apps Script를 새 버전으로 재배포하면 실제 Vendor 회사명 × 목적지별 Selling/Profit/Margin이 여기에 표시됩니다.</div>';
+  if (!vData) {
+    document.getElementById('t5-kpi').innerHTML = kc('상태','','데이터 로딩 중...','');
+    document.getElementById('t5-matrix').innerHTML = '<div style="padding:20px;color:var(--muted);text-align:center">새로고침 버튼을 눌러 실시간 데이터를 불러오세요.</div>';
+    document.getElementById('t5-destvend').innerHTML = '';
     return;
   }
 
-  document.getElementById('t5-datasrc').textContent = '✓ 실데이터';
-  document.getElementById('t5-datasrc').style.color = 'var(--grn)';
+  var vendors = vData.vendors || [];
+  var vendCust = vData.vendCust || [];
 
-  // 현재 필터(proyek/customer) 적용
-  var filtDV = dvData;
-  if (selProj) {
-    // destVendor에는 proyek 필터 정보가 없으므로 전체 표시 (Apps Script 단에서 필터 추가 가능)
-  }
+  // 현재 필터 적용
+  var yms = getYMs();
+  // (벤더 데이터는 월별 분리 없이 전체 집계라 필터 안내만 표시)
 
-  // 목적지 총 selling 기준 정렬
-  var dvSorted = filtDV.slice().sort(function(a,b){
-    var sa = a.vendors.reduce(function(x,v){ return x+v.revenue; },0);
-    var sb = b.vendors.reduce(function(x,v){ return x+v.revenue; },0);
-    return sb - sa;
-  }).slice(0,30);
+  // ── KPI ──────────────────────────────────────
+  var totalTrips = vendors.reduce(function(a,v){ return a+v.trips; }, 0);
+  var totalSell  = vendors.reduce(function(a,v){ return a+v.revenue; }, 0);
+  var totalProfit= vendors.reduce(function(a,v){ return a+v.profit; }, 0);
+  var topVendor  = vendors.length ? vendors[0].vendor : '—';
+  var avgMargin  = totalSell > 0 ? (totalProfit/totalSell*100).toFixed(1) : '0.0';
 
-  var dvTbl = '<table><thead><tr>'+
-    '<th style="min-width:140px">Destinasi</th>'+
-    '<th style="min-width:150px">Vendor</th>'+
-    '<th style="text-align:right">Trips</th>'+
-    '<th style="text-align:right">Selling (Rp)</th>'+
-    '<th style="text-align:right">Profit (Rp)</th>'+
-    '<th style="text-align:right">Margin</th>'+
-    '<th style="min-width:100px">수익성 비교</th>'+
+  document.getElementById('t5-kpi').innerHTML =
+    kc('벤더 수','', vendors.length+'개','') +
+    kc('총 운행','', fmt(totalTrips)+'건','') +
+    kc('총 Selling','', 'Rp '+fmtM(totalSell),'') +
+    kc('총 Profit','', 'Rp '+fmtM(totalProfit),'') +
+    kc('평균 마진','', avgMargin+'%','');
+
+  // ── 차트 A: 벤더별 Trip 비중 (Top 10) ────────
+  var top10 = vendors.slice(0,10);
+  mkChart('c5a','doughnut', top10.map(function(v){ return v.vendor; }), [{
+    data: top10.map(function(v){ return v.trips; }),
+    backgroundColor: DC, borderWidth: 2
+  }], { legend: true });
+
+  // ── 차트 B: 벤더별 Selling (Top 10) ──────────
+  mkChart('c5b','bar', top10.map(function(v){ return v.vendor; }), [{
+    label:'Selling', data: top10.map(function(v){ return Math.round(v.revenue/1e6*10)/10; }),
+    backgroundColor: DC.map(function(c){ return c+'CC'; }), borderRadius:3
+  }], { yCallback: function(v){ return v+'jt'; }, indexAxis:'y' });
+
+  // ── 메인 테이블: 벤더별 상세 ─────────────────
+  var maxT = vendors.length ? vendors[0].trips : 1;
+  var tbl = '<table><thead><tr>'+
+    '<th>#</th>'+
+    '<th style="min-width:120px">벤더명</th>'+
+    '<th class="th-num">운행</th>'+
+    '<th class="th-num">고객수</th>'+
+    '<th class="th-num">Selling (Rp)</th>'+
+    '<th class="th-num">Buying (Rp)</th>'+
+    '<th class="th-num">Profit (Rp)</th>'+
+    '<th class="th-num">Margin</th>'+
+    '<th style="min-width:100px">운행 비중</th>'+
   '</tr></thead><tbody>';
 
-  dvSorted.forEach(function(dv) {
-    var totT = dv.vendors.reduce(function(x,v){ return x+v.trips; },0);
-    var totS = dv.vendors.reduce(function(x,v){ return x+v.revenue; },0);
-    var totP = dv.vendors.reduce(function(x,v){ return x+v.profit; },0);
-    var isOpen = expandedDV5[dv.dest];
-    var maxM = Math.max.apply(null, dv.vendors.map(function(v){ return v.margin; }));
+  vendors.forEach(function(v, i) {
+    var mColor = v.margin >= 20 ? 'var(--grn)' : v.margin >= 10 ? 'var(--amb)' : 'var(--red)';
+    tbl += '<tr>'+
+      '<td style="color:var(--muted);font-size:10px">'+(i+1)+'</td>'+
+      '<td style="font-weight:500">'+v.vendor+'</td>'+
+      '<td class="num" style="text-align:right">'+fmt(v.trips)+'</td>'+
+      '<td class="num" style="text-align:right">'+v.custCount+'개</td>'+
+      '<td class="num" style="text-align:right">'+fmt(v.revenue)+'</td>'+
+      '<td class="num" style="text-align:right">'+fmt(v.cost)+'</td>'+
+      '<td class="num '+(v.profit>=0?'pp':'pn')+'" style="text-align:right">'+fmt(v.profit)+'</td>'+
+      '<td style="text-align:right"><span style="color:'+mColor+';font-weight:600;font-family:var(--mono)">'+v.margin+'%</span></td>'+
+      '<td style="min-width:100px">'+
+        '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'+
+          '<div style="height:100%;width:'+Math.max(2,v.trips/maxT*100)+'%;background:var(--acc);border-radius:3px"></div>'+
+        '</div>'+
+      '</td>'+
+    '</tr>';
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('t5-matrix').innerHTML = tbl;
 
-    dvTbl += '<tr class="tg" onclick="toggleDV5(\''+dv.dest.replace(/'/g,"\\'")+'\')">'+
-      '<td><span class="ch">'+(isOpen?'&#9660;':'&#9654;')+'</span><strong>'+dv.dest+'</strong></td>'+
-      '<td style="color:var(--muted);font-size:11px">'+dv.vendors.length+'개 벤더</td>'+
-      '<td style="text-align:right" class="num">'+totT+'</td>'+
-      '<td style="text-align:right" class="num">'+fmt(totS)+'</td>'+
-      '<td style="text-align:right" class="num '+(totP>=0?'pp':'pn')+'">'+fmt(totP)+'</td>'+
+  // ── 벤더×고객 상세 (펼침) ────────────────────
+  var vendorList = vendors.map(function(v){ return v.vendor; });
+  var dvTbl = '<table><thead><tr>'+
+    '<th style="min-width:120px">벤더명</th>'+
+    '<th style="min-width:130px">고객사</th>'+
+    '<th class="th-num">운행</th>'+
+    '<th class="th-num">Selling (Rp)</th>'+
+    '<th class="th-num">Profit (Rp)</th>'+
+    '<th class="th-num">Margin</th>'+
+  '</tr></thead><tbody>';
+
+  vendorList.forEach(function(vname) {
+    var vrows = vendCust.filter(function(r){ return r.vendor === vname; });
+    if (!vrows.length) return;
+    var totT = vrows.reduce(function(a,r){ return a+r.trips; },0);
+    var totS = vrows.reduce(function(a,r){ return a+r.revenue; },0);
+    var totP = vrows.reduce(function(a,r){ return a+r.profit; },0);
+    var isOpen = expandedDV5[vname];
+
+    dvTbl += '<tr class="tg" onclick="toggleDV5(\''+vname.replace(/'/g,"\\'")+'\')">'+
+      '<td><span class="ch">'+(isOpen?'&#9660;':'&#9654;')+'</span><strong>'+vname+'</strong></td>'+
+      '<td style="color:var(--muted);font-size:11px">'+vrows.length+'개 고객사</td>'+
+      '<td class="num" style="text-align:right">'+fmt(totT)+'</td>'+
+      '<td class="num" style="text-align:right">'+fmt(totS)+'</td>'+
+      '<td class="num '+(totP>=0?'pp':'pn')+'" style="text-align:right">'+fmt(totP)+'</td>'+
       '<td style="text-align:right">'+bdg(totP,totS)+'</td>'+
-      '<td></td>'+
     '</tr>';
 
     if (isOpen) {
-      // 벤더별 마진 최고값 기준으로 바 비교
-      var maxVS = dv.vendors.length ? dv.vendors[0].revenue : 1;
-      dv.vendors.forEach(function(v, vi) {
-        var mColor = v.margin >= 15 ? 'var(--grn)' : v.margin >= 8 ? 'var(--amb)' : 'var(--red)';
-        var isBest = v.margin === maxM;
-        dvTbl += '<tr class="ts" style="'+(isBest?'background:var(--grn-dim)':'')+' ">'+
-          '<td style="padding-left:20px;color:var(--muted);font-size:11px">'+dv.dest+'</td>'+
-          '<td style="font-weight:500">'+v.vendor+(isBest?' <span style="background:var(--grn);color:#fff;font-size:9px;padding:1px 5px;border-radius:4px;margin-left:4px">BEST</span>':'')+
-          '</td>'+
-          '<td style="text-align:right" class="num">'+v.trips+'</td>'+
-          '<td style="text-align:right" class="num">'+fmt(v.revenue)+'</td>'+
-          '<td style="text-align:right" class="num '+(v.profit>=0?'pp':'pn')+'">'+fmt(v.profit)+'</td>'+
-          '<td style="text-align:right"><span style="color:'+mColor+';font-weight:600;font-family:var(--mono)">'+v.margin+'%</span></td>'+
-          '<td>'+
-            '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'+
-              '<div style="height:100%;width:'+Math.max(2,v.revenue/maxVS*100)+'%;background:'+(isBest?'var(--grn)':'var(--acc)')+';border-radius:3px"></div>'+
-            '</div>'+
-          '</td>'+
+      vrows.sort(function(a,b){ return b.trips-a.trips; }).forEach(function(r) {
+        dvTbl += '<tr class="ts">'+
+          '<td style="padding-left:18px;color:var(--muted)">'+vname+'</td>'+
+          '<td style="font-weight:500">'+r.customer+'</td>'+
+          '<td class="num" style="text-align:right">'+fmt(r.trips)+'</td>'+
+          '<td class="num" style="text-align:right">'+fmt(r.revenue)+'</td>'+
+          '<td class="num '+(r.profit>=0?'pp':'pn')+'" style="text-align:right">'+fmt(r.profit)+'</td>'+
+          '<td style="text-align:right">'+bdg(r.profit,r.revenue)+'</td>'+
         '</tr>';
       });
     }
   });
-
   dvTbl += '</tbody></table>';
   document.getElementById('t5-destvend').innerHTML = dvTbl;
 }
+
+
 
 function kc(label, key, val, sub) {
   return '<div class="kc"><div class="kl">'+label+'</div><div class="kv" style="font-size:17px">'+val+'</div>'+(sub?'<div class="kd">'+sub+'</div>':'')+'</div>';
