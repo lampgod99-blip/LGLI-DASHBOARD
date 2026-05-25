@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LGLI Transport 3PL Dashboard 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f7fa; --bg2:#ffffff; --bg3:#eef1f6;
+  --border:#dde1ea; --border2:#c8cdd8;
+  --text:#1a1f2e; --muted:#6b7280; --dim:#9ca3af;
+  --acc:#2563eb; --acc-dim:#dbeafe;
+  --grn:#059669; --grn-dim:#d1fae5;
+  --amb:#d97706; --amb-dim:#fef3c7;
+  --red:#dc2626; --red-dim:#fee2e2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.logo{font-size:14px;font-weight:600;letter-spacing:.02em}
+.logo span{color:var(--acc)}
+.badge{font-size:11px;color:var(--muted);background:var(--bg3);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-family:'IBM Plex Mono',monospace}
+.wrap{max-width:1400px;margin:0 auto;padding:16px 20px}
+.fbar{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fbar label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+.fbar select{font-size:12px;padding:4px 7px;border:1px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--text);height:27px;cursor:pointer}
+.fbar select:focus{outline:none;border-color:var(--acc)}
+.pg{display:flex;gap:3px}
+.pb{padding:3px 10px;border:1px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--muted);font-size:11px;cursor:pointer;height:27px;font-family:'IBM Plex Sans',sans-serif}
+.pb:hover{color:var(--text)}
+.pb.on{background:var(--acc-dim);color:var(--acc);border-color:var(--acc)}
+.sep{width:1px;background:var(--border);height:18px;margin:0 2px}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tab{padding:7px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+.vw{display:none}
+.vw.on{display:block}
+.pills{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:12px;font-size:11px;border:1px solid var(--border2);cursor:pointer;background:var(--bg2);color:var(--muted)}
+.pill.on{border-width:1.5px}
+.kg{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:10px}
+.kc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.kl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.kv{font-size:19px;font-weight:500;line-height:1.1;font-family:'IBM Plex Mono',monospace}
+.kd{font-size:11px;margin-top:3px}
+.up{color:var(--grn)} .dn{color:var(--red)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cd{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.ct{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.leg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:7px;font-size:11px;color:var(--muted)}
+.ld{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{font-size:10px;font-weight:500;color:var(--muted);text-align:left;padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--bg3);text-transform:uppercase;letter-spacing:.04em}
+td{padding:5px 7px;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:hover td{background:var(--bg3)}
+.tg td{font-weight:500;background:var(--bg3);cursor:pointer}
+.tg:hover td{opacity:.85}
+.ts td{color:var(--muted);font-size:10.5px}
+.tt td{font-weight:500;background:var(--bg3)}
+.num{font-family:'IBM Plex Mono',monospace}
+.pp{color:var(--grn);font-weight:500}
+.pn{color:var(--red);font-weight:500}
+.bdg{display:inline-block;padding:1px 6px;border-radius:6px;font-size:10px;font-weight:500;font-family:'IBM Plex Mono',monospace}
+.bg{background:var(--grn-dim);color:var(--grn)}
+.bb{background:var(--acc-dim);color:var(--acc)}
+.ba{background:var(--amb-dim);color:var(--amb)}
+.br{background:var(--red-dim);color:var(--red)}
+.br2{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.bn{flex:0 0 130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.bw{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative}
+.bf{height:100%;border-radius:3px;position:absolute;top:0}
+.bv{flex:0 0 68px;text-align:right;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.ch{font-size:10px;margin-right:4px;opacity:.6}
+.cmp-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cmp-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.cmp-title{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.cmp-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.cmp-row:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">LGLI <span>Transport 3PL</span> Dashboard</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="live-status" style="font-size:11px;color:var(--muted)">로딩 중...</span>
+    <div class="badge">&#128202; <span id="badge-text">2026 Jan~May &middot; 5,231 records</span></div>
+  </div>
+</div>
+<div class="wrap">
+<div class="fbar">
+  <label>Periode</label>
+  <div class="pg">
+    <button class="pb on" id="pb-year" onclick="setPeriod('year',this)">Tahun</button>
+    <button class="pb" id="pb-mon" onclick="setPeriod('month',this)">Bulan</button>
+    <button class="pb" id="pb-rng" onclick="setPeriod('range',this)">Range</button>
+  </div>
+  <!-- Tahun 선택 -->
+  <select id="sel-year" onchange="renderAll()">
+    <option value="2026">2026</option>
+    <option value="2025">2025</option>
+    <option value="2024">2024</option>
+  </select>
+  <!-- Bulan 선택 -->
+  <select id="sel-month" style="display:none" onchange="renderAll()">
+    <option value="2026-05">May 2026</option>
+    <option value="2026-04">Apr 2026</option>
+    <option value="2026-03">Mar 2026</option>
+    <option value="2026-02">Feb 2026</option>
+    <option value="2026-01">Jan 2026</option>
+  </select>
+  <!-- Range 선택 -->
+  <span id="rng-inputs" style="display:none;gap:5px;align-items:center" class="pg">
+    <select id="ym1" onchange="renderAll()">
+      <option value="2026-01">Jan 26</option><option value="2026-02">Feb 26</option>
+      <option value="2026-03">Mar 26</option><option value="2026-04">Apr 26</option><option value="2026-05">May 26</option>
+    </select>
+    <span style="color:var(--muted);font-size:11px">~</span>
+    <select id="ym2" onchange="renderAll()">
+      <option value="2026-01">Jan 26</option><option value="2026-02">Feb 26</option>
+      <option value="2026-03">Mar 26</option><option value="2026-04">Apr 26</option><option value="2026-05" selected>May 26</option>
+    </select>
+  </span>
+  <div class="sep"></div>
+  <label>Proyek</label>
+  <select id="sel-proj" onchange="onProjChange()">
+    <option value="">Semua</option>
+    <option>Total Logistics</option><option>Surabaya Branch</option><option>On Call</option>
+    <option>EXIM (Trucking Head)</option><option>Nestle</option><option>Pick.Service</option>
+  </select>
+  <label>Customer</label>
+  <select id="sel-cust" onchange="renderAll()"><option value="">Semua</option></select>
+  <div class="sep"></div>
+  <label>VS</label>
+  <select id="sel-cmp" onchange="renderAll()">
+    <option value="prev">Periode lalu</option>
+    <option value="ly">Tahun lalu</option>
+    <option value="none">Tidak</option>
+  </select>
+</div>
+
+<div class="tabs">
+  <div class="tab on" id="tab-t1" onclick="showTab('t1')">&#9312; Overview</div>
+  <div class="tab" id="tab-t2" onclick="showTab('t2')">&#9313; Customer</div>
+  <div class="tab" id="tab-t3" onclick="showTab('t3')">&#9314; Kendaraan</div>
+  <div class="tab" id="tab-t4" onclick="showTab('t4')">&#9315; Destinasi</div>
+  <div class="tab" id="tab-t5" onclick="showTab('t5')">&#9316; Vendor</div>
+</div>
+
+<div id="vw-t1" class="vw on">
+  <div class="pills" id="t1-pills"></div>
+  <div class="kg" id="t1-kpi"></div>
+  <div id="t1-cmp"></div>
+  <div class="g2">
+    <div class="cd"><div class="ct">Profit Bulanan (IDR juta)</div>
+      <div class="leg" id="t1-leg1"></div>
+      <div style="position:relative;height:175px"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="cd"><div class="ct">Margin % Bulanan</div>
+      <div class="leg" id="t1-leg2"></div>
+      <div style="position:relative;height:175px"><canvas id="c2"></canvas></div>
+    </div>
+  </div>
+  <div class="cd"><div class="ct">Breakdown per Bulan x Proyek</div>
+    <div class="tw" id="t1-tbl"></div>
+  </div>
+</div>
+
+<div id="vw-t2" class="vw">
+  <div class="kg" id="t2-kpi"></div>
+  <div class="g2">
+    <div class="cd"><div class="ct">Selling vs Profit per Customer</div><div id="t2-bars"></div></div>
+    <div class="cd"><div class="ct">Trend Selling Bulanan (juta)</div>
+      <div style="position:relative;height:220px"><canvas id="c3"></canvas></div>
+    </div>
+  </div>
+  <div class="cd"><div class="ct">Vendor Mix per Customer (Trip Count)</div>
+    <div class="tw" id="t2-vendor"></div>
+  </div>
+  <div class="cd"><div class="ct">Proyek &rarr; Customer &rarr; Bulan (klik expand)</div>
+    <div class="tw" id="t2-tbl"></div>
+  </div>
+</div>
+
+<div id="vw-t3" class="vw">
+  <div class="g2">
+    <div class="cd"><div class="ct">Bulan x Kendaraan - Trip Count</div><div class="tw" id="t3-cross"></div></div>
+    <div class="cd"><div class="ct">Kendaraan Terbanyak</div><div id="t3-bars"></div></div>
+  </div>
+  <div class="cd"><div class="ct">Customer x Kendaraan x Bulan</div><div class="tw" id="t3-det"></div></div>
+</div>
+
+<div id="vw-t4" class="vw">
+  <div class="g2">
+    <div class="cd"><div class="ct">Top Destinasi - Trip Count</div>
+      <div style="position:relative;height:260px"><canvas id="c4"></canvas></div>
+    </div>
+    <div class="cd"><div class="ct">Top Destinasi - Selling · Profit · Margin</div><div id="t4-bars"></div></div>
+  </div>
+  <div class="cd">
+    <div class="ct">Destinasi × Vendor — Trip / Selling / Profit / Margin</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">목적지 클릭 시 벤더별 상세 펼치기</div>
+    <div class="tw" id="t4-destvend"></div>
+  </div>
+  <div class="cd"><div class="ct">Customer &rarr; Destinasi &rarr; Bulan (klik expand)</div>
+    <div class="tw" id="t4-tbl"></div>
+  </div>
+</div>
+
+<!-- ⑤ VENDOR TAB -->
+<div id="vw-t5" class="vw">
+  <div class="kg" id="t5-kpi"></div>
+  <div class="g2">
+    <div class="cd">
+      <div class="ct">벤더별 운행 비중 (Top 10)</div>
+      <div style="position:relative;height:220px"><canvas id="c5a"></canvas></div>
+    </div>
+    <div class="cd">
+      <div class="ct">벤더별 Selling Top 10 (juta)</div>
+      <div style="position:relative;height:220px"><canvas id="c5b"></canvas></div>
+    </div>
+  </div>
+  <div class="cd">
+    <div class="ct">벤더별 운행 / Selling / Buying / Profit / Margin</div>
+    <div class="tw" id="t5-matrix"></div>
+  </div>
+  <div class="cd">
+    <div class="ct">벤더 × 고객사 상세 (클릭 펼치기)</div>
+    <div class="tw" id="t5-destvend"></div>
+  </div>
+</div>
+</div>
+
+<script>
+var PC = {'Total Logistics':'#4f8ef7','Surabaya Branch':'#34d399','On Call':'#fbbf24','EXIM (Trucking Head)':'#f87171','Nestle':'#a78bfa','Pick.Service':'#94a3b8'};
+var PROJS = ['Total Logistics','Surabaya Branch','On Call','EXIM (Trucking Head)','Nestle','Pick.Service'];
+var YMS = ['2026-01','2026-02','2026-03','2026-04','2026-05'];
+var YML = ['Jan','Feb','Mar','Apr','May'];
+var DC = ['#4f8ef7','#34d399','#fbbf24','#f87171','#a78bfa','#94a3b8','#22d3ee','#fb923c','#e879f9','#a3e635'];
+
+var MP = [{"ym": "2026-01", "p": "EXIM (Trucking Head)", "s": 463950000, "b": 398010000, "pf": 65940000, "t": 34}, {"ym": "2026-01", "p": "Nestle", "s": 176396201, "b": 152993100, "pf": 23403101, "t": 32}, {"ym": "2026-01", "p": "On Call", "s": 628999600, "b": 557197100, "pf": 71802500, "t": 158}, {"ym": "2026-01", "p": "Pick.Service", "s": 28290000, "b": 19600000, "pf": 8690000, "t": 10}, {"ym": "2026-01", "p": "Surabaya Branch", "s": 263300356, "b": 231485500, "pf": 31814856, "t": 106}, {"ym": "2026-01", "p": "Total Logistics", "s": 356437015, "b": 226724182, "pf": 129712833, "t": 841}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "s": 138800000, "b": 123240000, "pf": 15560000, "t": 40}, {"ym": "2026-02", "p": "Nestle", "s": 67649391, "b": 56601500, "pf": 11047891, "t": 13}, {"ym": "2026-02", "p": "On Call", "s": 152200400, "b": 133263900, "pf": 18936500, "t": 44}, {"ym": "2026-02", "p": "Pick.Service", "s": 11040000, "b": 8300000, "pf": 2740000, "t": 4}, {"ym": "2026-02", "p": "Surabaya Branch", "s": 344974279, "b": 300530600, "pf": 44443679, "t": 115}, {"ym": "2026-02", "p": "Total Logistics", "s": 808220838, "b": 521734462, "pf": 286486376, "t": 1073}, {"ym": "2026-03", "p": "EXIM (Trucking Head)", "s": 79300000, "b": 78700000, "pf": 600000, "t": 3}, {"ym": "2026-03", "p": "Nestle", "s": 214100108, "b": 187692100, "pf": 26408008, "t": 15}, {"ym": "2026-03", "p": "On Call", "s": 80511350, "b": 70571350, "pf": 9940000, "t": 21}, {"ym": "2026-03", "p": "Pick.Service", "s": 9660000, "b": 7100000, "pf": 2560000, "t": 3}, {"ym": "2026-03", "p": "Surabaya Branch", "s": 390869386, "b": 344757900, "pf": 46111486, "t": 128}, {"ym": "2026-03", "p": "Total Logistics", "s": 349748084, "b": 216520348, "pf": 133227736, "t": 897}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "s": 264900000, "b": 236750000, "pf": 28150000, "t": 64}, {"ym": "2026-04", "p": "Nestle", "s": 95013297, "b": 78610000, "pf": 16403297, "t": 17}, {"ym": "2026-04", "p": "On Call", "s": 170139390, "b": 143870000, "pf": 26269390, "t": 39}, {"ym": "2026-04", "p": "Pick.Service", "s": 29440000, "b": 21455000, "pf": 7985000, "t": 12}, {"ym": "2026-04", "p": "Surabaya Branch", "s": 650419039, "b": 560561400, "pf": 89857639, "t": 139}, {"ym": "2026-04", "p": "Total Logistics", "s": 418729033, "b": 256481977, "pf": 162247056, "t": 955}, {"ym": "2026-05", "p": "On Call", "s": 117560000, "b": 104110000, "pf": 13450000, "t": 23}, {"ym": "2026-05", "p": "Pick.Service", "s": 14260000, "b": 10600000, "pf": 3660000, "t": 5}, {"ym": "2026-05", "p": "Surabaya Branch", "s": 369393092, "b": 311296700, "pf": 58096392, "t": 72}, {"ym": "2026-05", "p": "Total Logistics", "s": 202575885, "b": 121814490, "pf": 80761395, "t": 384}];
+var MC = [{"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "BGR EXIM", "s": 391000000, "b": 337960000, "pf": 53040000, "t": 17}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Adi Jaya", "s": 6800000, "b": 6350000, "pf": 450000, "t": 1}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL JNB", "s": 6750000, "b": 5500000, "pf": 1250000, "t": 5}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "s": 20900000, "b": 19200000, "pf": 1700000, "t": 10}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "Hillcon", "s": 38500000, "b": 29000000, "pf": 9500000, "t": 1}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Cikarang", "s": 1757000, "b": 1400000, "pf": 357000, "t": 1}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "s": 160739201, "b": 139343100, "pf": 21396101, "t": 29}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Panjang", "s": 13900000, "b": 12250000, "pf": 1650000, "t": 2}, {"ym": "2026-01", "p": "On Call", "c": "Agro Boga Utama", "s": 167800000, "b": 137450000, "pf": 30350000, "t": 55}, {"ym": "2026-01", "p": "On Call", "c": "Hans World Logistics", "s": 7431500, "b": 6200000, "pf": 1231500, "t": 1}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "s": 134000000, "b": 123550000, "pf": 10450000, "t": 20}, {"ym": "2026-01", "p": "On Call", "c": "Leegotech", "s": 4200000, "b": 3200000, "pf": 1000000, "t": 1}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "s": 219808100, "b": 199947100, "pf": 19861000, "t": 53}, {"ym": "2026-01", "p": "On Call", "c": "PBN Dom", "s": 9240000, "b": 8850000, "pf": 390000, "t": 5}, {"ym": "2026-01", "p": "On Call", "c": "Pancasakti Putra Kencana", "s": 30350000, "b": 25500000, "pf": 4850000, "t": 7}, {"ym": "2026-01", "p": "On Call", "c": "Polytama", "s": 4370000, "b": 3500000, "pf": 870000, "t": 2}, {"ym": "2026-01", "p": "On Call", "c": "Yanasurya", "s": 51800000, "b": 49000000, "pf": 2800000, "t": 14}, {"ym": "2026-01", "p": "Pick.Service", "c": "Pulunaga", "s": 28290000, "b": 19600000, "pf": 8690000, "t": 10}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Aneka Coffee", "s": 10396500, "b": 8796500, "pf": 1600000, "t": 2}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "s": 26100000, "b": 22600000, "pf": 3500000, "t": 7}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "s": 69600000, "b": 60000000, "pf": 9600000, "t": 16}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Mayora Indah", "s": 14350000, "b": 12800000, "pf": 1550000, "t": 4}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Orson Indonesia", "s": 28600000, "b": 21450000, "pf": 7150000, "t": 13}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "s": 38150000, "b": 34350000, "pf": 3800000, "t": 7}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "s": 76103856, "b": 71489000, "pf": 4614856, "t": 57}, {"ym": "2026-01", "p": "Total Logistics", "c": "Daesang", "s": 5900000, "b": 5440000, "pf": 460000, "t": 5}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "s": 22768616, "b": 14125000, "pf": 8643616, "t": 8}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "s": 20218400, "b": 14060000, "pf": 6158400, "t": 15}, {"ym": "2026-01", "p": "Total Logistics", "c": "SKI", "s": 9800000, "b": 8350000, "pf": 1450000, "t": 7}, {"ym": "2026-01", "p": "Total Logistics", "c": "TBI", "s": 4425000, "b": 3800000, "pf": 625000, "t": 1}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "s": 255324999, "b": 149899182, "pf": 105425817, "t": 797}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "s": 38000000, "b": 31050000, "pf": 6950000, "t": 8}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "BGR EXIM", "s": 69000000, "b": 59640000, "pf": 9360000, "t": 3}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "s": 69800000, "b": 63600000, "pf": 6200000, "t": 37}, {"ym": "2026-02", "p": "Nestle", "c": "Nestle Kejayan", "s": 67649391, "b": 56601500, "pf": 11047891, "t": 13}, {"ym": "2026-02", "p": "On Call", "c": "BGR Dom", "s": 17215500, "b": 12985000, "pf": 4230500, "t": 3}, {"ym": "2026-02", "p": "On Call", "c": "Colorindo Chemtra", "s": 5500000, "b": 4000000, "pf": 1500000, "t": 1}, {"ym": "2026-02", "p": "On Call", "c": "Global Twoway", "s": 13900000, "b": 9800000, "pf": 4100000, "t": 9}, {"ym": "2026-02", "p": "On Call", "c": "LeeGotech", "s": 4200000, "b": 3200000, "pf": 1000000, "t": 1}, {"ym": "2026-02", "p": "On Call", "c": "Mitra Sarana Purnama", "s": 15929900, "b": 14628900, "pf": 1301000, "t": 4}, {"ym": "2026-02", "p": "On Call", "c": "PBN Dom", "s": 17170000, "b": 14800000, "pf": 2370000, "t": 7}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Mitra Prima", "s": 16000000, "b": 15300000, "pf": 700000, "t": 3}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Putra Kencana", "s": 14000000, "b": 13500000, "pf": 500000, "t": 2}, {"ym": "2026-02", "p": "On Call", "c": "Polytama", "s": 2185000, "b": 1750000, "pf": 435000, "t": 1}, {"ym": "2026-02", "p": "On Call", "c": "Yanasurya", "s": 46100000, "b": 43300000, "pf": 2800000, "t": 13}, {"ym": "2026-02", "p": "Pick.Service", "c": "Pulunaga", "s": 11040000, "b": 8300000, "pf": 2740000, "t": 4}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "s": 31656000, "b": 27806000, "pf": 3850000, "t": 7}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "s": 30900000, "b": 26900000, "pf": 4000000, "t": 8}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Indah", "s": 13700000, "b": 12400000, "pf": 1300000, "t": 4}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "s": 20000000, "b": 16000000, "pf": 4000000, "t": 4}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Orson Indonesia", "s": 22000000, "b": 16500000, "pf": 5500000, "t": 10}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "s": 130963600, "b": 113263600, "pf": 17700000, "t": 20}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "s": 69554679, "b": 65511000, "pf": 4043679, "t": 54}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "s": 22200000, "b": 19150000, "pf": 3050000, "t": 7}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "orson Indonesia", "s": 4000000, "b": 3000000, "pf": 1000000, "t": 1}, {"ym": "2026-02", "p": "Total Logistics", "c": "Daesang", "s": 2950000, "b": 2740000, "pf": 210000, "t": 2}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "s": 34193884, "b": 20540000, "pf": 13653884, "t": 7}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "s": 34423000, "b": 25185000, "pf": 9238000, "t": 21}, {"ym": "2026-02", "p": "Total Logistics", "c": "SKI", "s": 9800000, "b": 8350000, "pf": 1450000, "t": 7}, {"ym": "2026-02", "p": "Total Logistics", "c": "TBI", "s": 4425000, "b": 3800000, "pf": 625000, "t": 1}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM Regular", "s": 484128954, "b": 265858962, "pf": 218269992, "t": 1013}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "s": 238300000, "b": 195260500, "pf": 43039500, "t": 22}, {"ym": "2026-03", "p": "EXIM (Trucking Head)", "c": "FCL Sendiri", "s": 79300000, "b": 78700000, "pf": 600000, "t": 3}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "s": 214100108, "b": 187692100, "pf": 26408008, "t": 15}, {"ym": "2026-03", "p": "On Call", "c": "Benfood Dinamika Sentosa", "s": 4166350, "b": 3566350, "pf": 600000, "t": 2}, {"ym": "2026-03", "p": "On Call", "c": "Lasalle", "s": 8750000, "b": 8650000, "pf": 100000, "t": 1}, {"ym": "2026-03", "p": "On Call", "c": "Leegotech", "s": 4800000, "b": 3300000, "pf": 1500000, "t": 1}, {"ym": "2026-03", "p": "On Call", "c": "Mirota KSM", "s": 2600000, "b": 2400000, "pf": 200000, "t": 1}, {"ym": "2026-03", "p": "On Call", "c": "PBN Dom", "s": 4975000, "b": 4480000, "pf": 495000, "t": 2}, {"ym": "2026-03", "p": "On Call", "c": "Pancasakti Putra Kencana", "s": 15350000, "b": 13750000, "pf": 1600000, "t": 3}, {"ym": "2026-03", "p": "On Call", "c": "Polyplex", "s": 4800000, "b": 3525000, "pf": 1275000, "t": 1}, {"ym": "2026-03", "p": "On Call", "c": "Polytama", "s": 4370000, "b": 3500000, "pf": 870000, "t": 2}, {"ym": "2026-03", "p": "On Call", "c": "Yanasurya", "s": 30700000, "b": 27400000, "pf": 3300000, "t": 8}, {"ym": "2026-03", "p": "Pick.Service", "c": "Pulunaga", "s": 9660000, "b": 7100000, "pf": 2560000, "t": 3}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Aneka Coffee", "s": 17274900, "b": 14774900, "pf": 2500000, "t": 4}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "s": 18600000, "b": 16200000, "pf": 2400000, "t": 5}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "s": 34696400, "b": 32096400, "pf": 2600000, "t": 9}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "s": 35000000, "b": 29000000, "pf": 6000000, "t": 7}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "s": 20500000, "b": 17400000, "pf": 3100000, "t": 2}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "s": 133128600, "b": 116003600, "pf": 17125000, "t": 23}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "s": 81469486, "b": 77183000, "pf": 4286486, "t": 63}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "s": 34800000, "b": 30550000, "pf": 4250000, "t": 8}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "orson Indonesia", "s": 15400000, "b": 11550000, "pf": 3850000, "t": 7}, {"ym": "2026-03", "p": "Total Logistics", "c": "MKG", "s": 6487332, "b": 5420500, "pf": 1066832, "t": 1}, {"ym": "2026-03", "p": "Total Logistics", "c": "Osstem", "s": 11268858, "b": 6700000, "pf": 4568858, "t": 2}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "s": 13708400, "b": 9640000, "pf": 4068400, "t": 12}, {"ym": "2026-03", "p": "Total Logistics", "c": "SKI", "s": 9800000, "b": 8450000, "pf": 1350000, "t": 7}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM Regular", "s": 284483494, "b": 166009848, "pf": 118473646, "t": 872}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "s": 24000000, "b": 20300000, "pf": 3700000, "t": 3}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "s": 94000000, "b": 87500000, "pf": 6500000, "t": 47}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "FCL Sendiri", "s": 115400000, "b": 114600000, "pf": 800000, "t": 4}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "SHEBA", "s": 55500000, "b": 34650000, "pf": 20850000, "t": 13}, {"ym": "2026-04", "p": "Nestle", "c": "Nestle Kejayan", "s": 95013297, "b": 78610000, "pf": 16403297, "t": 17}, {"ym": "2026-04", "p": "On Call", "c": "BGR Dom", "s": 32019390, "b": 25750000, "pf": 6269390, "t": 6}, {"ym": "2026-04", "p": "On Call", "c": "Brite Polymer", "s": 10400000, "b": 7900000, "pf": 2500000, "t": 8}, {"ym": "2026-04", "p": "On Call", "c": "Cussons", "s": 59120000, "b": 51620000, "pf": 7500000, "t": 7}, {"ym": "2026-04", "p": "On Call", "c": "PBN Dom", "s": 4200000, "b": 3900000, "pf": 300000, "t": 2}, {"ym": "2026-04", "p": "On Call", "c": "Pancasakti Putra Kencana", "s": 15000000, "b": 12900000, "pf": 2100000, "t": 2}, {"ym": "2026-04", "p": "On Call", "c": "Smart Lab Indonesia", "s": 18000000, "b": 16500000, "pf": 1500000, "t": 3}, {"ym": "2026-04", "p": "On Call", "c": "Yanasurya", "s": 31400000, "b": 25300000, "pf": 6100000, "t": 11}, {"ym": "2026-04", "p": "Pick.Service", "c": "Pulunaga", "s": 29440000, "b": 21455000, "pf": 7985000, "t": 12}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Aneka Coffee", "s": 10717600, "b": 8917600, "pf": 1800000, "t": 2}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "s": 69700000, "b": 61200000, "pf": 8500000, "t": 18}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Greendfields", "s": 17543200, "b": 15743200, "pf": 1800000, "t": 3}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Indah", "s": 18300000, "b": 16100000, "pf": 2200000, "t": 4}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "s": 15000000, "b": 12500000, "pf": 2500000, "t": 3}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Orson Indonesia", "s": 18800000, "b": 14000000, "pf": 4800000, "t": 8}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "s": 19755000, "b": 15905000, "pf": 3850000, "t": 3}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "s": 250544600, "b": 220644600, "pf": 29900000, "t": 26}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "s": 83958639, "b": 78751000, "pf": 5207639, "t": 64}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "s": 146100000, "b": 116800000, "pf": 29300000, "t": 8}, {"ym": "2026-04", "p": "Total Logistics", "c": "Daesang", "s": 2775000, "b": 2325000, "pf": 450000, "t": 2}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "s": 24734794, "b": 18461500, "pf": 6273294, "t": 5}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "s": 33297600, "b": 24600000, "pf": 8697600, "t": 24}, {"ym": "2026-04", "p": "Total Logistics", "c": "SKI", "s": 9800000, "b": 8300000, "pf": 1500000, "t": 7}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "s": 315921639, "b": 175641477, "pf": 140280162, "t": 913}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "s": 32200000, "b": 27154000, "pf": 5046000, "t": 4}, {"ym": "2026-05", "p": "On Call", "c": "Brite Polymer", "s": 6500000, "b": 5000000, "pf": 1500000, "t": 5}, {"ym": "2026-05", "p": "On Call", "c": "Cussons", "s": 62460000, "b": 57860000, "pf": 4600000, "t": 8}, {"ym": "2026-05", "p": "On Call", "c": "Leegotech", "s": 4200000, "b": 3200000, "pf": 1000000, "t": 1}, {"ym": "2026-05", "p": "On Call", "c": "Pancasakti Putra Kencana", "s": 28000000, "b": 24600000, "pf": 3400000, "t": 4}, {"ym": "2026-05", "p": "On Call", "c": "Smart Lab Indonesia", "s": 6000000, "b": 5500000, "pf": 500000, "t": 1}, {"ym": "2026-05", "p": "On Call", "c": "Yanasurya", "s": 10400000, "b": 7950000, "pf": 2450000, "t": 4}, {"ym": "2026-05", "p": "Pick.Service", "c": "Pulunaga", "s": 14260000, "b": 10600000, "pf": 3660000, "t": 5}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Aneka Coffee", "s": 8700000, "b": 7400000, "pf": 1300000, "t": 2}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "s": 55900000, "b": 49200000, "pf": 6700000, "t": 14}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Indah", "s": 10600000, "b": 9000000, "pf": 1600000, "t": 2}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "s": 65000000, "b": 55500000, "pf": 9500000, "t": 13}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "s": 91171700, "b": 76171700, "pf": 15000000, "t": 15}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "s": 22021392, "b": 20825000, "pf": 1196392, "t": 17}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "s": 116000000, "b": 93200000, "pf": 22800000, "t": 9}, {"ym": "2026-05", "p": "Total Logistics", "c": "Daesang", "s": 4425000, "b": 4020000, "pf": 405000, "t": 3}, {"ym": "2026-05", "p": "Total Logistics", "c": "Osstem", "s": 5353334, "b": 2625000, "pf": 2728334, "t": 1}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "s": 14004600, "b": 10320000, "pf": 3684600, "t": 9}, {"ym": "2026-05", "p": "Total Logistics", "c": "SKI", "s": 7300000, "b": 6550000, "pf": 750000, "t": 5}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "s": 171492951, "b": 98299490, "pf": 73193461, "t": 366}];
+var MV = [{"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "BGR EXIM", "v": "40ft", "t": 17, "s": 391000000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Adi Jaya", "v": "40ft", "t": 1, "s": 6800000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL JNB", "v": "40ft", "t": 5, "s": 6750000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "v": "20ft", "t": 1, "s": 2900000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "v": "40ft", "t": 9, "s": 18000000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "Hillcon", "v": "20ft", "t": 1, "s": 38500000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Cikarang", "v": "WB", "t": 1, "s": 1757000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "v": "CDD", "t": 1, "s": 2979101}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "v": "Fuso", "t": 1, "s": 5073081}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "v": "Tronton", "t": 2, "s": 11697000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "v": "WB", "t": 25, "s": 140990019}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Panjang", "v": "WB", "t": 2, "s": 13900000}, {"ym": "2026-01", "p": "On Call", "c": "Agro Boga Utama", "v": "40ft", "t": 55, "s": 167800000}, {"ym": "2026-01", "p": "On Call", "c": "Hans World Logistics", "v": "CDE", "t": 1, "s": 7431500}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "v": "WB", "t": 20, "s": 134000000}, {"ym": "2026-01", "p": "On Call", "c": "Leegotech", "v": "CDD", "t": 1, "s": 4200000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "v": "WB", "t": 53, "s": 219808100}, {"ym": "2026-01", "p": "On Call", "c": "PBN Dom", "v": "Fuso", "t": 4, "s": 7140000}, {"ym": "2026-01", "p": "On Call", "c": "PBN Dom", "v": "WB", "t": 1, "s": 2100000}, {"ym": "2026-01", "p": "On Call", "c": "Pancasakti Putra Kencana", "v": "WB", "t": 7, "s": 30350000}, {"ym": "2026-01", "p": "On Call", "c": "Polytama", "v": "CDE", "t": 2, "s": 4370000}, {"ym": "2026-01", "p": "On Call", "c": "Yanasurya", "v": "WB", "t": 14, "s": 51800000}, {"ym": "2026-01", "p": "Pick.Service", "c": "Pulunaga", "v": "CDD", "t": 1, "s": 1150000}, {"ym": "2026-01", "p": "Pick.Service", "c": "Pulunaga", "v": "Fuso", "t": 2, "s": 4600000}, {"ym": "2026-01", "p": "Pick.Service", "c": "Pulunaga", "v": "WB", "t": 7, "s": 22540000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "Fuso", "t": 1, "s": 4696000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "WB", "t": 1, "s": 5700500}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "v": "WB", "t": 7, "s": 26100000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "v": "WB", "t": 16, "s": 69600000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Mayora Indah", "v": "WB", "t": 4, "s": 14350000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Orson Indonesia", "v": "WB", "t": 13, "s": 28600000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "WB", "t": 7, "s": 38150000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "v": "WB", "t": 57, "s": 76103856}, {"ym": "2026-01", "p": "Total Logistics", "c": "Daesang", "v": "WB", "t": 5, "s": 5900000}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "v": "CDD", "t": 1, "s": 755334}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "v": "Grandmax", "t": 5, "s": 5853279}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "v": "LTL", "t": 2, "s": 16160003}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "v": "CDD", "t": 4, "s": 5520000}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "v": "CDE", "t": 6, "s": 6900000}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "v": "Grandmax", "t": 5, "s": 7798400}, {"ym": "2026-01", "p": "Total Logistics", "c": "SKI", "v": "WB", "t": 7, "s": 9800000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TBI", "v": "CDE", "t": 1, "s": 4425000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "v": "Motor", "t": 447, "s": 56615000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "v": "Parcel_W", "t": 350, "s": 198709999}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "20ft", "t": 2, "s": 22000000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "CDD", "t": 2, "s": 5000000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "CDDL", "t": 3, "s": 10800000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "Fuso", "t": 1, "s": 200000}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "BGR EXIM", "v": "40ft", "t": 3, "s": 69000000}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "v": "20ft", "t": 4, "s": 3800000}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "v": "40ft", "t": 33, "s": 66000000}, {"ym": "2026-02", "p": "Nestle", "c": "Nestle Kejayan", "v": "Fuso", "t": 3, "s": 10076882}, {"ym": "2026-02", "p": "Nestle", "c": "Nestle Kejayan", "v": "WB", "t": 10, "s": 57572509}, {"ym": "2026-02", "p": "On Call", "c": "BGR Dom", "v": "WB", "t": 3, "s": 17215500}, {"ym": "2026-02", "p": "On Call", "c": "Colorindo Chemtra", "v": "LTL", "t": 1, "s": 5500000}, {"ym": "2026-02", "p": "On Call", "c": "Global Twoway", "v": "CDD", "t": 2, "s": 3700000}, {"ym": "2026-02", "p": "On Call", "c": "Global Twoway", "v": "WB", "t": 7, "s": 10200000}, {"ym": "2026-02", "p": "On Call", "c": "LeeGotech", "v": "CDD", "t": 1, "s": 4200000}, {"ym": "2026-02", "p": "On Call", "c": "Mitra Sarana Purnama", "v": "WB", "t": 4, "s": 15929900}, {"ym": "2026-02", "p": "On Call", "c": "PBN Dom", "v": "Fuso", "t": 2, "s": 3570000}, {"ym": "2026-02", "p": "On Call", "c": "PBN Dom", "v": "WB", "t": 5, "s": 13600000}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Mitra Prima", "v": "WB", "t": 3, "s": 16000000}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Putra Kencana", "v": "WB", "t": 2, "s": 14000000}, {"ym": "2026-02", "p": "On Call", "c": "Polytama", "v": "CDE", "t": 1, "s": 2185000}, {"ym": "2026-02", "p": "On Call", "c": "Yanasurya", "v": "WB", "t": 13, "s": 46100000}, {"ym": "2026-02", "p": "Pick.Service", "c": "Pulunaga", "v": "Fuso", "t": 2, "s": 4600000}, {"ym": "2026-02", "p": "Pick.Service", "c": "Pulunaga", "v": "WB", "t": 2, "s": 6440000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "CDD", "t": 1, "s": 3518600}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "Fuso", "t": 3, "s": 15049200}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "WB", "t": 3, "s": 13088200}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "v": "WB", "t": 8, "s": 30900000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Indah", "v": "WB", "t": 4, "s": 13700000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "v": "WB", "t": 4, "s": 20000000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Orson Indonesia", "v": "WB", "t": 10, "s": 22000000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "CDDL", "t": 5, "s": 11253600}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "WB", "t": 15, "s": 119710000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "v": "WB", "t": 54, "s": 69554679}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "CDDL", "t": 5, "s": 16300000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "WB", "t": 2, "s": 5900000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "orson Indonesia", "v": "WB", "t": 1, "s": 4000000}, {"ym": "2026-02", "p": "Total Logistics", "c": "Daesang", "v": "WB", "t": 2, "s": 2950000}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "v": "CDDL", "t": 1, "s": 3186567}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "v": "Grandmax", "t": 1, "s": 2312649}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "v": "LTL", "t": 5, "s": 28694668}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "v": "CDD", "t": 5, "s": 6900000}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "v": "CDE", "t": 10, "s": 18800000}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "v": "Grandmax", "t": 6, "s": 8723000}, {"ym": "2026-02", "p": "Total Logistics", "c": "SKI", "v": "WB", "t": 7, "s": 9800000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TBI", "v": "CDE", "t": 1, "s": 4425000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM Regular", "v": "Motor", "t": 541, "s": 71097500}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM Regular", "v": "Parcel_W", "t": 472, "s": 413031454}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "20ft", "t": 10, "s": 132700000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "CDDL", "t": 9, "s": 41300000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "WB", "t": 3, "s": 64300000}, {"ym": "2026-03", "p": "EXIM (Trucking Head)", "c": "FCL Sendiri", "v": "FCL", "t": 3, "s": 79300000}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "v": "Fuso", "t": 3, "s": 15660102}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "v": "WB", "t": 12, "s": 198440006}, {"ym": "2026-03", "p": "On Call", "c": "Benfood Dinamika Sentosa", "v": "CDD", "t": 2, "s": 4166350}, {"ym": "2026-03", "p": "On Call", "c": "Lasalle", "v": "WB", "t": 1, "s": 8750000}, {"ym": "2026-03", "p": "On Call", "c": "Leegotech", "v": "WB", "t": 1, "s": 4800000}, {"ym": "2026-03", "p": "On Call", "c": "Mirota KSM", "v": "WB", "t": 1, "s": 2600000}, {"ym": "2026-03", "p": "On Call", "c": "PBN Dom", "v": "WB", "t": 2, "s": 4975000}, {"ym": "2026-03", "p": "On Call", "c": "Pancasakti Putra Kencana", "v": "WB", "t": 3, "s": 15350000}, {"ym": "2026-03", "p": "On Call", "c": "Polyplex", "v": "WB", "t": 1, "s": 4800000}, {"ym": "2026-03", "p": "On Call", "c": "Polytama", "v": "CDE", "t": 2, "s": 4370000}, {"ym": "2026-03", "p": "On Call", "c": "Yanasurya", "v": "Threeway", "t": 1, "s": 10800000}, {"ym": "2026-03", "p": "On Call", "c": "Yanasurya", "v": "WB", "t": 7, "s": 19900000}, {"ym": "2026-03", "p": "Pick.Service", "c": "Pulunaga", "v": "WB", "t": 3, "s": 9660000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "Fuso", "t": 3, "s": 10723900}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "WB", "t": 1, "s": 6551000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "v": "WB", "t": 5, "s": 18600000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "v": "Fuso", "t": 3, "s": 16846400}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "v": "WB", "t": 6, "s": 17850000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "v": "WB", "t": 7, "s": 35000000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "v": "WB", "t": 2, "s": 20500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "WB", "t": 23, "s": 133128600}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "v": "WB", "t": 63, "s": 81469486}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "CDD", "t": 1, "s": 3100000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "Fuso", "t": 2, "s": 11400000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "WB", "t": 5, "s": 20300000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "orson Indonesia", "v": "WB", "t": 7, "s": 15400000}, {"ym": "2026-03", "p": "Total Logistics", "c": "MKG", "v": "LTL", "t": 1, "s": 6487332}, {"ym": "2026-03", "p": "Total Logistics", "c": "Osstem", "v": "Grandmax", "t": 1, "s": 1062189}, {"ym": "2026-03", "p": "Total Logistics", "c": "Osstem", "v": "LTL", "t": 1, "s": 10206669}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "v": "CDD", "t": 2, "s": 2760000}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "v": "CDE", "t": 6, "s": 6900000}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "v": "Grandmax", "t": 4, "s": 4048400}, {"ym": "2026-03", "p": "Total Logistics", "c": "SKI", "v": "WB", "t": 7, "s": 9800000}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM Regular", "v": "Motor", "t": 550, "s": 64450068}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM Regular", "v": "Parcel_W", "t": 322, "s": 220033426}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "20ft", "t": 1, "s": 18000000}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "CDD", "t": 2, "s": 6000000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "v": "40ft", "t": 47, "s": 94000000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "FCL Sendiri", "v": "FCL", "t": 4, "s": 115400000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "SHEBA", "v": "40ft", "t": 11, "s": 47300000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "SHEBA", "v": "LCL", "t": 2, "s": 8200000}, {"ym": "2026-04", "p": "Nestle", "c": "Nestle Kejayan", "v": "Fuso", "t": 4, "s": 20451984}, {"ym": "2026-04", "p": "Nestle", "c": "Nestle Kejayan", "v": "Tronton", "t": 1, "s": 5621301}, {"ym": "2026-04", "p": "Nestle", "c": "Nestle Kejayan", "v": "WB", "t": 12, "s": 68940012}, {"ym": "2026-04", "p": "On Call", "c": "BGR Dom", "v": "WB", "t": 6, "s": 32019390}, {"ym": "2026-04", "p": "On Call", "c": "Brite Polymer", "v": "WB", "t": 8, "s": 10400000}, {"ym": "2026-04", "p": "On Call", "c": "Cussons", "v": "WB", "t": 7, "s": 59120000}, {"ym": "2026-04", "p": "On Call", "c": "PBN Dom", "v": "WB", "t": 2, "s": 4200000}, {"ym": "2026-04", "p": "On Call", "c": "Pancasakti Putra Kencana", "v": "WB", "t": 2, "s": 15000000}, {"ym": "2026-04", "p": "On Call", "c": "Smart Lab Indonesia", "v": "WB", "t": 3, "s": 18000000}, {"ym": "2026-04", "p": "On Call", "c": "Yanasurya", "v": "WB", "t": 11, "s": 31400000}, {"ym": "2026-04", "p": "Pick.Service", "c": "Pulunaga", "v": "CDD", "t": 4, "s": 4600000}, {"ym": "2026-04", "p": "Pick.Service", "c": "Pulunaga", "v": "Fuso", "t": 1, "s": 2300000}, {"ym": "2026-04", "p": "Pick.Service", "c": "Pulunaga", "v": "WB", "t": 7, "s": 22540000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "Fuso", "t": 1, "s": 4500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "WB", "t": 1, "s": 6217600}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "v": "WB", "t": 18, "s": 69700000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Greendfields", "v": "CDD", "t": 1, "s": 4623200}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Greendfields", "v": "WB", "t": 2, "s": 12920000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Indah", "v": "WB", "t": 4, "s": 18300000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "v": "WB", "t": 3, "s": 15000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Orson Indonesia", "v": "WB", "t": 8, "s": 18800000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "v": "Fuso", "t": 1, "s": 5100000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "v": "WB", "t": 2, "s": 14655000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "WB", "t": 26, "s": 250544600}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "v": "WB", "t": 64, "s": 83958639}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "Fuso", "t": 7, "s": 121100000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "WB", "t": 1, "s": 25000000}, {"ym": "2026-04", "p": "Total Logistics", "c": "Daesang", "v": "CDD", "t": 1, "s": 1300000}, {"ym": "2026-04", "p": "Total Logistics", "c": "Daesang", "v": "WB", "t": 1, "s": 1475000}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "v": "Grandmax", "t": 1, "s": 708126}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "v": "LTL", "t": 4, "s": 24026668}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "v": "CDD", "t": 4, "s": 5520000}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "v": "CDE", "t": 11, "s": 12650000}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "v": "Grandmax", "t": 9, "s": 15127600}, {"ym": "2026-04", "p": "Total Logistics", "c": "SKI", "v": "WB", "t": 7, "s": 9800000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "v": "MOTOR", "t": 66, "s": 6212500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "v": "Motor", "t": 377, "s": 49210000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "v": "Parcel_W", "t": 470, "s": 260499139}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "v": "CDD", "t": 4, "s": 32200000}, {"ym": "2026-05", "p": "On Call", "c": "Brite Polymer", "v": "WB", "t": 5, "s": 6500000}, {"ym": "2026-05", "p": "On Call", "c": "Cussons", "v": "WB", "t": 8, "s": 62460000}, {"ym": "2026-05", "p": "On Call", "c": "Leegotech", "v": "CDD", "t": 1, "s": 4200000}, {"ym": "2026-05", "p": "On Call", "c": "Pancasakti Putra Kencana", "v": "WB", "t": 4, "s": 28000000}, {"ym": "2026-05", "p": "On Call", "c": "Smart Lab Indonesia", "v": "WB", "t": 1, "s": 6000000}, {"ym": "2026-05", "p": "On Call", "c": "Yanasurya", "v": "WB", "t": 4, "s": 10400000}, {"ym": "2026-05", "p": "Pick.Service", "c": "Pulunaga", "v": "Fuso", "t": 2, "s": 4600000}, {"ym": "2026-05", "p": "Pick.Service", "c": "Pulunaga", "v": "WB", "t": 3, "s": 9660000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "Fuso", "t": 1, "s": 3200000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Aneka Coffee", "v": "WB", "t": 1, "s": 5500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "v": "WB", "t": 14, "s": 55900000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Indah", "v": "WB", "t": 2, "s": 10600000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "v": "WB", "t": 13, "s": 65000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "Tronton", "t": 1, "s": 5400000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "v": "WB", "t": 14, "s": 85771700}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "v": "WB", "t": 17, "s": 22021392}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "Fuso", "t": 5, "s": 85000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "v": "WB", "t": 4, "s": 31000000}, {"ym": "2026-05", "p": "Total Logistics", "c": "Daesang", "v": "WB", "t": 3, "s": 4425000}, {"ym": "2026-05", "p": "Total Logistics", "c": "Osstem", "v": "LTL", "t": 1, "s": 5353334}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "v": "CDD", "t": 1, "s": 1380000}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "v": "CDE", "t": 7, "s": 11700000}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "v": "Grandmax", "t": 1, "s": 924600}, {"ym": "2026-05", "p": "Total Logistics", "c": "SKI", "v": "WB", "t": 5, "s": 7300000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "v": "Motor", "t": 137, "s": 28150000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "v": "Parcel_W", "t": 115, "s": 139392951}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "v": "Unknown", "t": 114, "s": 3950000}];
+var MD = [{"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "BGR EXIM", "d": "Jawa Barat", "t": 17, "s": 391000000, "pf": 53040000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Adi Jaya", "d": "Jawa Barat", "t": 1, "s": 6800000, "pf": 450000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL JNB", "d": "Jakarta", "t": 5, "s": 6750000, "pf": 1250000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "d": "Tangerang", "t": 10, "s": 20900000, "pf": 1700000}, {"ym": "2026-01", "p": "EXIM (Trucking Head)", "c": "Hillcon", "d": "Sulawesi", "t": 1, "s": 38500000, "pf": 9500000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Cikarang", "d": "Cikarang", "t": 1, "s": 1757000, "pf": 357000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Bandung", "t": 1, "s": 6245000, "pf": 540000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Bekasi", "t": 9, "s": 45970008, "pf": 6238008}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Cikarang", "t": 12, "s": 65502192, "pf": 9442192}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Depok", "t": 1, "s": 6245000, "pf": 158200}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Jakarta", "t": 1, "s": 5995000, "pf": -31500}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Jakarta Timur", "t": 3, "s": 17692000, "pf": 2322000}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Karawang", "t": 1, "s": 5995001, "pf": 1005001}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Kejayan", "d": "Tangerang", "t": 1, "s": 7095000, "pf": 1722200}, {"ym": "2026-01", "p": "Nestle", "c": "Nestle Panjang", "d": "Cikarang", "t": 2, "s": 13900000, "pf": 1650000}, {"ym": "2026-01", "p": "On Call", "c": "Agro Boga Utama", "d": "Bekasi", "t": 14, "s": 48400000, "pf": 10150000}, {"ym": "2026-01", "p": "On Call", "c": "Agro Boga Utama", "d": "Jakarta", "t": 27, "s": 71000000, "pf": 10950000}, {"ym": "2026-01", "p": "On Call", "c": "Agro Boga Utama", "d": "Jawa barat", "t": 14, "s": 48400000, "pf": 9250000}, {"ym": "2026-01", "p": "On Call", "c": "Hans World Logistics", "d": "Bali", "t": 1, "s": 7431500, "pf": 1231500}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "d": "Rembang", "t": 3, "s": 21000000, "pf": 900000}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "d": "Semarang", "t": 8, "s": 52000000, "pf": 3600000}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "d": "Solo", "t": 4, "s": 27000000, "pf": 2000000}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "d": "Surabaya", "t": 3, "s": 19250000, "pf": 2800000}, {"ym": "2026-01", "p": "On Call", "c": "Lasalle", "d": "Yogyakarta", "t": 2, "s": 14750000, "pf": 1150000}, {"ym": "2026-01", "p": "On Call", "c": "Leegotech", "d": "Cilegon", "t": 1, "s": 4200000, "pf": 1000000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Balaraja", "t": 2, "s": 8473500, "pf": 692000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Banten", "t": 2, "s": 8460200, "pf": 642000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Bekasi", "t": 2, "s": 8870000, "pf": 820000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Bogor", "t": 7, "s": 28994500, "pf": 3817000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Depok", "t": 1, "s": 3798000, "pf": 210000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Jakarta", "t": 5, "s": 18840000, "pf": 1300000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Karawang", "t": 3, "s": 14640000, "pf": 1440000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Serang", "t": 8, "s": 33645500, "pf": 2568000}, {"ym": "2026-01", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Tangerang", "t": 23, "s": 94086400, "pf": 8372000}, {"ym": "2026-01", "p": "On Call", "c": "PBN Dom", "d": "Purwakarta", "t": 1, "s": 2100000, "pf": 200000}, {"ym": "2026-01", "p": "On Call", "c": "PBN Dom", "d": "Tangerang", "t": 4, "s": 7140000, "pf": 190000}, {"ym": "2026-01", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Cikarang", "t": 3, "s": 10050000, "pf": 3550000}, {"ym": "2026-01", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Semarang", "t": 4, "s": 20300000, "pf": 1300000}, {"ym": "2026-01", "p": "On Call", "c": "Polytama", "d": "Indramayu", "t": 2, "s": 4370000, "pf": 870000}, {"ym": "2026-01", "p": "On Call", "c": "Yanasurya", "d": "Cilegon", "t": 11, "s": 40700000, "pf": 2200000}, {"ym": "2026-01", "p": "On Call", "c": "Yanasurya", "d": "Purwakarta", "t": 1, "s": 3700000, "pf": 200000}, {"ym": "2026-01", "p": "On Call", "c": "Yanasurya", "d": "Tangerang", "t": 2, "s": 7400000, "pf": 400000}, {"ym": "2026-01", "p": "Pick.Service", "c": "Pulunaga", "d": "Cikarang", "t": 9, "s": 25990000, "pf": 8290000}, {"ym": "2026-01", "p": "Pick.Service", "c": "Pulunaga", "d": "Tangerang", "t": 1, "s": 2300000, "pf": 400000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Cirebon", "t": 1, "s": 4696000, "pf": 400000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Jakarta Utara", "t": 1, "s": 5700500, "pf": 1200000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Kudus", "t": 1, "s": 3700000, "pf": 500000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Semarang", "t": 3, "s": 11100000, "pf": 1500000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Solo", "t": 1, "s": 3700000, "pf": 500000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Yogyakarta", "t": 2, "s": 7600000, "pf": 1000000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Balaraja", "t": 1, "s": 5000000, "pf": 500000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Cipondoh", "t": 1, "s": 5000000, "pf": 500000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Cirebon", "t": 1, "s": 4600000, "pf": 300000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Karawang", "t": 1, "s": 4800000, "pf": 300000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Kudus", "t": 1, "s": 3700000, "pf": 500000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Purworejo", "t": 1, "s": 3700000, "pf": 400000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Semarang", "t": 4, "s": 14800000, "pf": 2000000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Serang", "t": 1, "s": 7000000, "pf": 2100000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Solo", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Tangerang", "t": 1, "s": 6000000, "pf": 1000000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Yogyakarta", "t": 2, "s": 7600000, "pf": 1000000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Klaten", "t": 1, "s": 3400000, "pf": 200000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Yogyakarta", "t": 3, "s": 10950000, "pf": 1350000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Orson Indonesia", "d": "Cikarang", "t": 13, "s": 28600000, "pf": 7150000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bekasi", "t": 1, "s": 5400000, "pf": 400000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bogor", "t": 2, "s": 11100000, "pf": 1600000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta", "t": 1, "s": 5350000, "pf": 400000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta Timur", "t": 1, "s": 5500000, "pf": 400000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Tangerang", "t": 2, "s": 10800000, "pf": 1000000}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Darmosugondo)", "t": 5, "s": 6906755, "pf": 506755}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Manyar)", "t": 1, "s": 1351351, "pf": 101351}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Wringin Anom)", "t": 10, "s": 11420260, "pf": 261260}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Mojokerto", "t": 16, "s": 22660616, "pf": 1621616}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Pasuruan", "t": 18, "s": 24485318, "pf": 1824318}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Probolinggo", "t": 1, "s": 2242800, "pf": 142800}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Sidoarjo", "t": 3, "s": 3498378, "pf": 78378}, {"ym": "2026-01", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Surabaya (Karangpilang)", "t": 3, "s": 3538378, "pf": 78378}, {"ym": "2026-01", "p": "Total Logistics", "c": "Daesang", "d": "Karawang", "t": 5, "s": 5900000, "pf": 460000}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "d": "Bali", "t": 2, "s": 16160003, "pf": 7385003}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "d": "Bandung", "t": 1, "s": 2312649, "pf": 1062649}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "d": "Jakarta", "t": 3, "s": 2171586, "pf": -528414}, {"ym": "2026-01", "p": "Total Logistics", "c": "Osstem", "d": "Tangerang", "t": 2, "s": 2124378, "pf": 724378}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "d": "Cikarang", "t": 1, "s": 924600, "pf": 224600}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "d": "Jakarta", "t": 6, "s": 6679200, "pf": 2629200}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "d": "Jakarta Selatan", "t": 1, "s": 1150000, "pf": 500000}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "d": "Surabaya", "t": 1, "s": 4100000, "pf": 900000}, {"ym": "2026-01", "p": "Total Logistics", "c": "SBM", "d": "Tangerang", "t": 6, "s": 7364600, "pf": 1904600}, {"ym": "2026-01", "p": "Total Logistics", "c": "SKI", "d": "Tangerang", "t": 7, "s": 9800000, "pf": 1450000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TBI", "d": "Surabaya", "t": 1, "s": 4425000, "pf": 625000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "d": "Bekasi", "t": 135, "s": 37835797, "pf": 11682347}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "d": "Bogor", "t": 141, "s": 63321111, "pf": 30324636}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "d": "Depok", "t": 9, "s": 3660520, "pf": 795920}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "d": "Jakarta", "t": 290, "s": 51905115, "pf": 11430340}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "d": "Serang", "t": 6, "s": 4070886, "pf": 1292386}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM Regular", "d": "Tangerang", "t": 216, "s": 94531570, "pf": 49900188}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Cirebon", "t": 1, "s": 3100000, "pf": 300000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Jember", "t": 2, "s": 7800000, "pf": 2000000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Manado", "t": 2, "s": 22000000, "pf": 5000000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Serang", "t": 1, "s": 1900000, "pf": -150000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Sukabumi", "t": 1, "s": 3000000, "pf": 600000}, {"ym": "2026-01", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Yogyakarta", "t": 1, "s": 200000, "pf": -800000}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "BGR EXIM", "d": "Jawa Barat", "t": 3, "s": 69000000, "pf": 9360000}, {"ym": "2026-02", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "d": "Tangerang", "t": 37, "s": 69800000, "pf": 6200000}, {"ym": "2026-02", "p": "Nestle", "c": "Nestle Kejayan", "d": "Bekasi", "t": 2, "s": 11612501, "pf": 1511001}, {"ym": "2026-02", "p": "Nestle", "c": "Nestle Kejayan", "d": "Cikarang", "t": 11, "s": 56036890, "pf": 9536890}, {"ym": "2026-02", "p": "On Call", "c": "BGR Dom", "d": "Bogor", "t": 2, "s": 11480500, "pf": 3030500}, {"ym": "2026-02", "p": "On Call", "c": "BGR Dom", "d": "Madiun", "t": 1, "s": 5735000, "pf": 1200000}, {"ym": "2026-02", "p": "On Call", "c": "Colorindo Chemtra", "d": "Indramayu", "t": 1, "s": 5500000, "pf": 1500000}, {"ym": "2026-02", "p": "On Call", "c": "Global Twoway", "d": "Cakung", "t": 2, "s": 3700000, "pf": 900000}, {"ym": "2026-02", "p": "On Call", "c": "Global Twoway", "d": "Jakarta", "t": 7, "s": 10200000, "pf": 3200000}, {"ym": "2026-02", "p": "On Call", "c": "LeeGotech", "d": "Cilegon", "t": 1, "s": 4200000, "pf": 1000000}, {"ym": "2026-02", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Bekasi", "t": 1, "s": 4037800, "pf": 260000}, {"ym": "2026-02", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Bogor", "t": 1, "s": 3458800, "pf": 281000}, {"ym": "2026-02", "p": "On Call", "c": "Mitra Sarana Purnama", "d": "Karawang", "t": 2, "s": 8433300, "pf": 760000}, {"ym": "2026-02", "p": "On Call", "c": "PBN Dom", "d": "Purwakarta", "t": 1, "s": 2100000, "pf": 200000}, {"ym": "2026-02", "p": "On Call", "c": "PBN Dom", "d": "Tangerang", "t": 6, "s": 15070000, "pf": 2170000}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Mitra Prima", "d": "Gresik", "t": 3, "s": 16000000, "pf": 700000}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Gresik", "t": 1, "s": 8000000, "pf": 200000}, {"ym": "2026-02", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Semarang", "t": 1, "s": 6000000, "pf": 300000}, {"ym": "2026-02", "p": "On Call", "c": "Polytama", "d": "Indramayu", "t": 1, "s": 2185000, "pf": 435000}, {"ym": "2026-02", "p": "On Call", "c": "Yanasurya", "d": "Cikarang", "t": 2, "s": 5400000, "pf": 600000}, {"ym": "2026-02", "p": "On Call", "c": "Yanasurya", "d": "Cilegon", "t": 11, "s": 40700000, "pf": 2200000}, {"ym": "2026-02", "p": "Pick.Service", "c": "Pulunaga", "d": "Cikarang", "t": 4, "s": 11040000, "pf": 2740000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Bandung", "t": 2, "s": 11684400, "pf": 800000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Jakarta", "t": 3, "s": 10314600, "pf": 2250000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Purwakarta", "t": 1, "s": 4857000, "pf": 500000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Purwokerto", "t": 1, "s": 4800000, "pf": 300000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Jawa Tengah", "t": 1, "s": 4800000, "pf": 500000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Kudus", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Semarang", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Solo", "t": 1, "s": 3700000, "pf": 500000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "CS2 POLA SEHAT", "d": "Yogyakarta", "t": 2, "s": 7600000, "pf": 1000000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Sleman", "t": 1, "s": 3650000, "pf": 450000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Solo", "t": 2, "s": 6400000, "pf": 400000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Yogyakarta", "t": 1, "s": 3650000, "pf": 450000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "d": "Balaraja", "t": 4, "s": 20000000, "pf": 4000000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Orson Indonesia", "d": "Cikarang", "t": 10, "s": 22000000, "pf": 5500000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bogor", "t": 6, "s": 26512600, "pf": 2950000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Cirebon", "t": 1, "s": 3371000, "pf": 500000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta", "t": 2, "s": 5500000, "pf": 400000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta Timur", "t": 4, "s": 21800000, "pf": 2800000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jambi", "t": 1, "s": 28000000, "pf": 2500000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Sukabumi", "t": 2, "s": 4080000, "pf": 750000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Sumatera Selatan", "t": 1, "s": 25500000, "pf": 5700000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Tangerang", "t": 3, "s": 16200000, "pf": 2100000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Darmosugondo)", "t": 14, "s": 18918914, "pf": 1418914}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Driyorejo)", "t": 3, "s": 3378378, "pf": 78378}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Wringin Anom)", "t": 10, "s": 11373260, "pf": 261260}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Mojokerto", "t": 10, "s": 13605510, "pf": 1013510}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Pasuruan", "t": 11, "s": 14971861, "pf": 1114861}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Sidoarjo", "t": 2, "s": 2802252, "pf": 52252}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Surabaya (Karang Pilang)", "t": 1, "s": 1126126, "pf": 26126}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Surabaya (Karangpilang)", "t": 3, "s": 3378378, "pf": 78378}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Banyumas", "t": 1, "s": 3800000, "pf": 800000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Karanganyar", "t": 1, "s": 2900000, "pf": 300000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Pati", "t": 1, "s": 2900000, "pf": 400000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Semarang", "t": 1, "s": 4200000, "pf": 300000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Surabaya", "t": 1, "s": 1700000, "pf": 200000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Tegal", "t": 1, "s": 3600000, "pf": 600000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Yogyakarta", "t": 1, "s": 3100000, "pf": 450000}, {"ym": "2026-02", "p": "Surabaya Branch", "c": "orson Indonesia", "d": "Depok", "t": 1, "s": 4000000, "pf": 1000000}, {"ym": "2026-02", "p": "Total Logistics", "c": "Daesang", "d": "Karawang", "t": 2, "s": 2950000, "pf": 210000}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Bali", "t": 1, "s": 6148000, "pf": 1020500}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Bandung", "t": 1, "s": 2312649, "pf": 1062649}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Banjarmasin", "t": 1, "s": 6420000, "pf": 1057500}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Depok", "t": 1, "s": 3186567, "pf": 1886567}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Semarang", "t": 1, "s": 5100000, "pf": 2850000}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Sidoarjo", "t": 1, "s": 5673334, "pf": 3048334}, {"ym": "2026-02", "p": "Total Logistics", "c": "Osstem", "d": "Yogyakarta", "t": 1, "s": 5353334, "pf": 2728334}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "d": "Cikarang", "t": 1, "s": 924600, "pf": 224600}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "d": "Jakarta", "t": 7, "s": 7373800, "pf": 2313800}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "d": "Jakarta Selatan", "t": 1, "s": 1150000, "pf": 500000}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "d": "Surabaya", "t": 3, "s": 13700000, "pf": 3550000}, {"ym": "2026-02", "p": "Total Logistics", "c": "SBM", "d": "Tangerang", "t": 9, "s": 11274600, "pf": 2649600}, {"ym": "2026-02", "p": "Total Logistics", "c": "SKI", "d": "Tangerang", "t": 7, "s": 9800000, "pf": 1450000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TBI", "d": "Surabaya", "t": 1, "s": 4425000, "pf": 625000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM Regular", "d": "Bekasi", "t": 9, "s": 8612638, "pf": 2869213}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM Regular", "d": "Bogor", "t": 7, "s": 10283805, "pf": 5386755}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Bandung", "t": 2, "s": 3200000, "pf": 650000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Batam", "t": 2, "s": 25600000, "pf": 7200000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Bengkulu", "t": 1, "s": 23500000, "pf": 5500000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Kendari", "t": 2, "s": 18000000, "pf": 3700000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Lampung", "t": 1, "s": 7500000, "pf": 500000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Majalaya", "t": 1, "s": 3500000, "pf": 1280000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Makassar", "t": 1, "s": 17200000, "pf": 2700000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Malang", "t": 1, "s": 7000000, "pf": 1500000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Padang", "t": 1, "s": 19000000, "pf": 3300000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Palembang", "t": 1, "s": 15200000, "pf": 1200000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Palu", "t": 1, "s": 18500000, "pf": 2200000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Pontianak", "t": 1, "s": 15400000, "pf": 1100000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Samarinda", "t": 2, "s": 21300000, "pf": 4300000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Sampit", "t": 1, "s": 23300000, "pf": 3300000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Semarang", "t": 1, "s": 4500000, "pf": 1050000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Solo", "t": 1, "s": 5000000, "pf": 544500}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Surabaya", "t": 1, "s": 6600000, "pf": 1485000}, {"ym": "2026-02", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Tasikmalaya", "t": 1, "s": 4000000, "pf": 1530000}, {"ym": "2026-03", "p": "EXIM (Trucking Head)", "c": "FCL Sendiri", "d": "Medan", "t": 3, "s": 79300000, "pf": 600000}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "d": "Cakung", "t": 1, "s": 5495000, "pf": 555000}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "d": "Cikarang", "t": 8, "s": 44635108, "pf": 8315108}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "d": "Pekan Baru", "t": 2, "s": 63990000, "pf": 5062300}, {"ym": "2026-03", "p": "Nestle", "c": "Nestle Kejayan", "d": "Sumatera Selatan", "t": 4, "s": 99980000, "pf": 12475600}, {"ym": "2026-03", "p": "On Call", "c": "Benfood Dinamika Sentosa", "d": "Jawa Tengah", "t": 2, "s": 4166350, "pf": 600000}, {"ym": "2026-03", "p": "On Call", "c": "Lasalle", "d": "Surabaya", "t": 1, "s": 8750000, "pf": 100000}, {"ym": "2026-03", "p": "On Call", "c": "Leegotech", "d": "Cilegon", "t": 1, "s": 4800000, "pf": 1500000}, {"ym": "2026-03", "p": "On Call", "c": "Mirota KSM", "d": "Tangerang", "t": 1, "s": 2600000, "pf": 200000}, {"ym": "2026-03", "p": "On Call", "c": "PBN Dom", "d": "Purwakarta", "t": 1, "s": 2100000, "pf": 300000}, {"ym": "2026-03", "p": "On Call", "c": "PBN Dom", "d": "Tangerang", "t": 1, "s": 2875000, "pf": 195000}, {"ym": "2026-03", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Cikarang", "t": 1, "s": 3350000, "pf": 1000000}, {"ym": "2026-03", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Semarang", "t": 2, "s": 12000000, "pf": 600000}, {"ym": "2026-03", "p": "On Call", "c": "Polyplex", "d": "Cikampek", "t": 1, "s": 4800000, "pf": 1275000}, {"ym": "2026-03", "p": "On Call", "c": "Polytama", "d": "Indramayu", "t": 2, "s": 4370000, "pf": 870000}, {"ym": "2026-03", "p": "On Call", "c": "Yanasurya", "d": "Cikarang", "t": 6, "s": 16200000, "pf": 1800000}, {"ym": "2026-03", "p": "On Call", "c": "Yanasurya", "d": "Cilegon", "t": 1, "s": 3700000, "pf": 200000}, {"ym": "2026-03", "p": "On Call", "c": "Yanasurya", "d": "Sidoarjo", "t": 1, "s": 10800000, "pf": 1300000}, {"ym": "2026-03", "p": "Pick.Service", "c": "Pulunaga", "d": "Cikarang", "t": 3, "s": 9660000, "pf": 2560000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Bandung", "t": 1, "s": 5154900, "pf": 500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Bogor", "t": 2, "s": 5569000, "pf": 450000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Jakarta", "t": 1, "s": 6551000, "pf": 1550000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Kudus", "t": 1, "s": 3700000, "pf": 500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Purworejo", "t": 1, "s": 3700000, "pf": 400000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Semarang", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Yogyakarta", "t": 1, "s": 3800000, "pf": 500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "d": "Cirebon", "t": 1, "s": 5659800, "pf": 400000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "d": "Daan Mogot", "t": 1, "s": 6050000, "pf": 600000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "d": "Jakarta", "t": 3, "s": -750000, "pf": -1500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "d": "Sukabumi", "t": 1, "s": 5486600, "pf": 700000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "d": "Tangerang", "t": 2, "s": 12950000, "pf": 1900000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Greendfields", "d": "Tanjung Priok", "t": 1, "s": 5300000, "pf": 500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "d": "Balaraja", "t": 7, "s": 35000000, "pf": 6000000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "d": "Mojokerto", "t": 1, "s": 10500000, "pf": 1600000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "d": "Surabaya", "t": 1, "s": 10000000, "pf": 1500000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bekasi", "t": 1, "s": 5493600, "pf": 1000000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bogor", "t": 3, "s": 16880000, "pf": 2100000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Depok", "t": 1, "s": 5400000, "pf": 975000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Gresik", "t": 1, "s": 2000000, "pf": 100000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta", "t": 2, "s": 11227000, "pf": 800000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta Timur", "t": 4, "s": 22000000, "pf": 4000000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Semarang", "t": 1, "s": 4170000, "pf": 300000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Sumatera Selatan", "t": 2, "s": 24182000, "pf": 2250000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Tangerang", "t": 6, "s": 33441000, "pf": 5000000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Yogyakarta", "t": 2, "s": 8335000, "pf": 600000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Darmosugondo)", "t": 9, "s": 12262159, "pf": 912159}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Driyorejo)", "t": 2, "s": 2252252, "pf": 52252}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Manyar)", "t": 8, "s": 10810808, "pf": 810808}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Wringin Anom)", "t": 12, "s": 14163512, "pf": 313512}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Mojokerto", "t": 6, "s": 8233106, "pf": 608106}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Pasuruan", "t": 9, "s": 12292159, "pf": 912159}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Probolinggo", "t": 2, "s": 4485600, "pf": 285600}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Sidoarjo", "t": 11, "s": 12465386, "pf": 287386}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Surabaya", "t": 4, "s": 4504504, "pf": 104504}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Cikarang", "t": 3, "s": 16800000, "pf": 1800000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Greisk", "t": 1, "s": 1400000, "pf": 200000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Lampung", "t": 1, "s": 10000000, "pf": 1300000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Sidoarjo", "t": 1, "s": 1800000, "pf": 300000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Surabaya", "t": 1, "s": 1700000, "pf": 200000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Yogyakarta", "t": 1, "s": 3100000, "pf": 450000}, {"ym": "2026-03", "p": "Surabaya Branch", "c": "orson Indonesia", "d": "Cikarang", "t": 7, "s": 15400000, "pf": 3850000}, {"ym": "2026-03", "p": "Total Logistics", "c": "MKG", "d": "Badung", "t": 1, "s": 6487332, "pf": 1066832}, {"ym": "2026-03", "p": "Total Logistics", "c": "Osstem", "d": "Jepara", "t": 1, "s": 10206669, "pf": 4206669}, {"ym": "2026-03", "p": "Total Logistics", "c": "Osstem", "d": "Tangerang", "t": 1, "s": 1062189, "pf": 362189}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "d": "Jakarta", "t": 2, "s": 2300000, "pf": 1000000}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "d": "Jakarta Selatan", "t": 1, "s": 924600, "pf": 224600}, {"ym": "2026-03", "p": "Total Logistics", "c": "SBM", "d": "Tangerang", "t": 9, "s": 10483800, "pf": 2843800}, {"ym": "2026-03", "p": "Total Logistics", "c": "SKI", "d": "Tangerang", "t": 7, "s": 9800000, "pf": 1350000}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Bandung", "t": 1, "s": 2300000, "pf": 300000}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Banjarmasin", "t": 1, "s": 18000000, "pf": 3000000}, {"ym": "2026-03", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Semarang", "t": 1, "s": 3700000, "pf": 400000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "FCL Packaging", "d": "Tangerang", "t": 47, "s": 94000000, "pf": 6500000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "FCL Sendiri", "d": "Medan", "t": 4, "s": 115400000, "pf": 800000}, {"ym": "2026-04", "p": "EXIM (Trucking Head)", "c": "SHEBA", "d": "Jawa Barat", "t": 13, "s": 55500000, "pf": 20850000}, {"ym": "2026-04", "p": "Nestle", "c": "Nestle Kejayan", "d": "Cikarang", "t": 17, "s": 95013297, "pf": 16403297}, {"ym": "2026-04", "p": "On Call", "c": "BGR Dom", "d": "Jawa Tengah", "t": 1, "s": 6942000, "pf": 342000}, {"ym": "2026-04", "p": "On Call", "c": "BGR Dom", "d": "Madiun", "t": 2, "s": 9959090, "pf": 4259090}, {"ym": "2026-04", "p": "On Call", "c": "BGR Dom", "d": "Malang", "t": 1, "s": 2759000, "pf": 209000}, {"ym": "2026-04", "p": "On Call", "c": "BGR Dom", "d": "Sidoarjo", "t": 2, "s": 12359300, "pf": 1459300}, {"ym": "2026-04", "p": "On Call", "c": "Brite Polymer", "d": "Cikarang", "t": 8, "s": 10400000, "pf": 2500000}, {"ym": "2026-04", "p": "On Call", "c": "Cussons", "d": "Sidoarjo", "t": 5, "s": 39200000, "pf": 2900000}, {"ym": "2026-04", "p": "On Call", "c": "Cussons", "d": "Surabaya", "t": 2, "s": 19920000, "pf": 4600000}, {"ym": "2026-04", "p": "On Call", "c": "PBN Dom", "d": "Purwakarta", "t": 2, "s": 4200000, "pf": 300000}, {"ym": "2026-04", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Mojokerto", "t": 1, "s": 9000000, "pf": 1600000}, {"ym": "2026-04", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Semarang", "t": 1, "s": 6000000, "pf": 500000}, {"ym": "2026-04", "p": "On Call", "c": "Smart Lab Indonesia", "d": "Semarang", "t": 3, "s": 18000000, "pf": 1500000}, {"ym": "2026-04", "p": "On Call", "c": "Yanasurya", "d": "Cilegon", "t": 10, "s": 27700000, "pf": 5900000}, {"ym": "2026-04", "p": "On Call", "c": "Yanasurya", "d": "Tangerang", "t": 1, "s": 3700000, "pf": 200000}, {"ym": "2026-04", "p": "Pick.Service", "c": "Pulunaga", "d": "Cikarang", "t": 11, "s": 27140000, "pf": 7585000}, {"ym": "2026-04", "p": "Pick.Service", "c": "Pulunaga", "d": "Tangerang", "t": 1, "s": 2300000, "pf": 400000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Jakarta", "t": 1, "s": 4500000, "pf": 500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Jakarta Utara", "t": 1, "s": 6217600, "pf": 1300000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Balaraja", "t": 1, "s": 4800000, "pf": 300000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Jepara", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Klaten", "t": 1, "s": 3800000, "pf": 500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Kudus", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Purworejo", "t": 3, "s": 11100000, "pf": 1200000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Solo", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Tasik malaya", "t": 1, "s": 5000000, "pf": 500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Yogyakarta", "t": 6, "s": 22800000, "pf": 3000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Greendfields", "d": "Bekasi", "t": 1, "s": 6420000, "pf": 650000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Greendfields", "d": "Bogor", "t": 1, "s": 4623200, "pf": 600000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Greendfields", "d": "Jakarta Utara", "t": 1, "s": 6500000, "pf": 550000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Cirebon", "t": 2, "s": 9600000, "pf": 1000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Solo", "t": 1, "s": 3200000, "pf": 200000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Sukabumi", "t": 1, "s": 5500000, "pf": 1000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "d": "Balaraja", "t": 3, "s": 15000000, "pf": 2500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Orson Indonesia", "d": "Cikarang", "t": 6, "s": 13200000, "pf": 3300000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Orson Indonesia", "d": "Sawangan", "t": 2, "s": 5600000, "pf": 1500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "d": "Bogor", "t": 1, "s": 5100000, "pf": 700000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "d": "Cibitung", "t": 1, "s": 3625000, "pf": 50000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Permata Food Indonesia", "d": "Mojokerto", "t": 1, "s": 11030000, "pf": 3100000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bekasi", "t": 2, "s": 11322000, "pf": 800000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bogor", "t": 3, "s": 16535000, "pf": 1900000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta Timur", "t": 4, "s": 22085000, "pf": 3100000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jawa Barat", "t": 2, "s": 11523600, "pf": 2300000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Lampung", "t": 4, "s": 86750000, "pf": 10000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Mojokerto", "t": 1, "s": 1500000, "pf": 200000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Palembang", "t": 1, "s": 22800000, "pf": 2500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Sumatera Selatan", "t": 2, "s": 45389000, "pf": 5000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Surabaya", "t": 1, "s": 1500000, "pf": 100000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Tangerang", "t": 5, "s": 27000000, "pf": 3600000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Yogyakarta", "t": 1, "s": 4140000, "pf": 400000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Darmosugondo)", "t": 16, "s": 21671616, "pf": 1621616}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Driyorejo)", "t": 2, "s": 2252252, "pf": 52252}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Manyar)", "t": 5, "s": 6756755, "pf": 506755}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Wringin Anom)", "t": 11, "s": 12599386, "pf": 287386}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Mojokerto", "t": 17, "s": 23661967, "pf": 1722967}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Pasuruan", "t": 9, "s": 12512159, "pf": 912159}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Sidoarjo", "t": 2, "s": 2252252, "pf": 52252}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Surabaya", "t": 1, "s": 1126126, "pf": 26126}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Surabaya (Karangpilang)", "t": 1, "s": 1126126, "pf": 26126}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Jambi", "t": 2, "s": 40000000, "pf": 7000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Lampung", "t": 1, "s": 10000000, "pf": 1500000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Pekanbaru", "t": 2, "s": 49000000, "pf": 9000000}, {"ym": "2026-04", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Sumatera Selatan", "t": 3, "s": 47100000, "pf": 11800000}, {"ym": "2026-04", "p": "Total Logistics", "c": "Daesang", "d": "Karawang", "t": 2, "s": 2775000, "pf": 450000}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "d": "Denpasar", "t": 1, "s": 5553334, "pf": 2628334}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "d": "Jakarta Pusat", "t": 1, "s": 708126, "pf": 8126}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "d": "Palu", "t": 1, "s": 7073334, "pf": 633334}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "d": "Sumatera Selatan", "t": 1, "s": 6580000, "pf": 808500}, {"ym": "2026-04", "p": "Total Logistics", "c": "Osstem", "d": "Surabaya", "t": 1, "s": 4820000, "pf": 2195000}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "d": "Jakarta", "t": 5, "s": 5529200, "pf": 1749200}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "d": "Jakarta Selatan", "t": 3, "s": 2999200, "pf": 749200}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "d": "Surabaya", "t": 2, "s": 8200000, "pf": 2200000}, {"ym": "2026-04", "p": "Total Logistics", "c": "SBM", "d": "Tangerang", "t": 14, "s": 16569200, "pf": 3999200}, {"ym": "2026-04", "p": "Total Logistics", "c": "SKI", "d": "Tangerang", "t": 7, "s": 9800000, "pf": 1500000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Alam Sutera", "t": 3, "s": 600000, "pf": 365000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-BSD City", "t": 4, "s": 335000, "pf": 65000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Deltamas", "t": 3, "s": 400000, "pf": -5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Eastvara", "t": 3, "s": 370000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Jakarta Garden City", "t": 4, "s": 335000, "pf": -55000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Kota Wisata", "t": 3, "s": 320000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Mall Ciputra Tangerang", "t": 3, "s": 635000, "pf": 200000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Pakuwon Mall Bekasi", "t": 3, "s": 200000, "pf": 35000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Sentul City", "t": 5, "s": 500000, "pf": 125000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Tanjung Barat", "t": 4, "s": 202500, "pf": 12500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAksesmu-DC STL-Shipment Bogor", "t": 3, "s": 33405225, "pf": 17497975}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Balaraja", "t": 19, "s": 18437490, "pf": 11757240}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Bekasi", "t": 13, "s": 7568500, "pf": 2519500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Bogor", "t": 18, "s": 11239325, "pf": 5751075}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Cikokol", "t": 12, "s": 7053075, "pf": 3637325}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Cileungsi 2", "t": 10, "s": 11857650, "pf": 6211150}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Depo Balaraja", "t": 12, "s": 10829400, "pf": 6814400}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Parung", "t": 13, "s": 9708050, "pf": 4997550}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfamidi-Bekasi", "t": 28, "s": 13091293, "pf": 4353768}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfamidi-Bitung", "t": 22, "s": 20061875, "pf": 12895478}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MCircleK-Jakarta", "t": 1, "s": 228690, "pf": 38115}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Alam Sutra", "t": 3, "s": 370000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Ancol", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Arion Mall", "t": 2, "s": 335000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Belagio", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Bintaro Xchange", "t": 3, "s": 370000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Cikarang Groove", "t": 3, "s": 270000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Citra Tower Kemayoran", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-DAILY KEMANG PRATAMA", "t": 1, "s": 200000, "pf": 65000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-DAILY SUPERMARKET JATIASIH", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Antasari Place", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Bumi Serpong Damai", "t": 2, "s": 335000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Jatibening", "t": 2, "s": 70000, "pf": 10000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Legenda Wisata", "t": 3, "s": 320000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Maggiore Junction", "t": 2, "s": 335000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Depok Mall", "t": 2, "s": 70000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Dukuh Golf Kemayoran", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-FOODHALL GRAND GALAXY PARK", "t": 2, "s": 235000, "pf": 70000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-FX", "t": 3, "s": 105000, "pf": 15000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Gourmet Plaza Indonesia", "t": 3, "s": 105000, "pf": 15000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Grand Indonesia", "t": 3, "s": 502500, "pf": 112500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Grand Tropic", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Grand Wisata Bekasi ( GWB", "t": 3, "s": 435000, "pf": 135000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Istana Sahid Sudirman", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Kelapa Gading", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Lippo Mall Puri", "t": 2, "s": 335000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Mall of Indonesia", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Menara Tendean", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Millenimum Mall Senen ( M", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Neo Soho", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Office 8", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Orange Grove PIK", "t": 2, "s": 335000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Pantai Indah Kapuk", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Plaza Senayan", "t": 3, "s": 502500, "pf": 112500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Pondok Indah Mall", "t": 3, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Puri Mansion", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Sarana Square", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Senayan City", "t": 3, "s": 105000, "pf": 15000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Senayan Residence", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Setiabudi", "t": 3, "s": 70000, "pf": -120000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-South Quarter", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Sunter Mall", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-TMII", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Villa Delima", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodhall - DAILY SUPERMARKET SYNTHESIS", "t": 2, "s": 300000, "pf": -100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodhall-Daily Supermarket Sedayu City", "t": 3, "s": 105000, "pf": 15000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodmaxx-Bougenville", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodmaxx-Hayam Wuruk", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodmaxx-Tb.Simatupang", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHRN-HERO GONDANGDIA", "t": 1, "s": 0, "pf": -130000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHRN-HERO KEMANG VILLA", "t": 1, "s": 0, "pf": -130000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHRN-HERO PONDOK INDAH MALL", "t": 5, "s": 167500, "pf": 137500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHRN-HERO PURI INDAH MALL", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHRN-HERO TAMAN ANGGREK", "t": 2, "s": 167500, "pf": 137500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHRN-HERO TAROGONG", "t": 2, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHypermart-Balaraja", "t": 11, "s": 2099925, "pf": 1299950}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Bintara", "t": 17, "s": 3848039, "pf": 1266014}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Bogor", "t": 5, "s": 1497640, "pf": 664240}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Cikokol", "t": 8, "s": 4664206, "pf": 2443156}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Cipinang", "t": 6, "s": 3434060, "pf": 591510}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Ciputat", "t": 4, "s": 2518020, "pf": 419670}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Kemayoran", "t": 12, "s": 5564910, "pf": 927485}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Bekasi 1", "t": 3, "s": 400000, "pf": -5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Bintaro", "t": 1, "s": 231300, "pf": 38550}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Bogor", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Ciampea", "t": 1, "s": 250000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cikokol 1", "t": 4, "s": 370000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cikokol 2", "t": 3, "s": 2368450, "pf": 1015700}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cipinang 1", "t": 6, "s": 2027200, "pf": 408700}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Kayumanis", "t": 1, "s": 386400, "pf": 202400}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Kemayoran 1", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Meikarta", "t": 2, "s": 235000, "pf": 70000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Rawa Buaya", "t": 8, "s": 1028800, "pf": 169800}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Tangerang 1", "t": 3, "s": 946275, "pf": 438525}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Teluk Naga", "t": 3, "s": 773900, "pf": 123150}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Tangerang", "t": 9, "s": 4908344, "pf": 2438419}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Bekasi", "t": 39, "s": 8918945, "pf": 3201320}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Bogor 1", "t": 36, "s": 11833248, "pf": 5839323}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Bogor 2", "t": 36, "s": 16176456, "pf": 8201481}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Jakarta 1", "t": 38, "s": 11301890, "pf": 1920315}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Jakarta 2", "t": 39, "s": 6547330, "pf": 1218305}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Parung", "t": 39, "s": 11044186, "pf": 5646956}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Tangerang 1", "t": 47, "s": 12887850, "pf": 6932450}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Tangerang 2", "t": 39, "s": 12218799, "pf": 6249374}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MK3Mart-DC Jakarta", "t": 2, "s": 70000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte Mart-Bintaro", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte Mart-Gandaria City", "t": 3, "s": 35000, "pf": -25000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte Mart-Kuningan City", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Alam Sutera", "t": 3, "s": 900000, "pf": 300000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Bekasi", "t": 3, "s": 451375, "pf": 142125}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Bogor", "t": 3, "s": 750000, "pf": 240000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Cikarang", "t": 3, "s": 435000, "pf": 135000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Ciputat", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Jatake", "t": 3, "s": 370000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Kelapa Gading", "t": 3, "s": 370000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-MM2100", "t": 3, "s": 435000, "pf": 135000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Meruya", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Pakansari", "t": 2, "s": 285000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Pasar Rebo", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MPT. Fajar Mitra Indah-Jakarta", "t": 4, "s": 1534920, "pf": 255820}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MPT. Fajar Mitra Indah-Pondok Ungu", "t": 4, "s": 2403228, "pf": 1310303}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MRAMBLA BEKASI", "t": 4, "s": 400000, "pf": 235000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MRambla-Happy Harvest Bogor", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Baywalk Mall", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Bintaro", "t": 2, "s": 600000, "pf": 200000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Bintaro Xchange", "t": 7, "s": 1235000, "pf": 400000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Blok M Plaza", "t": 3, "s": 167500, "pf": 7500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Botani Square", "t": 1, "s": 250000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Cikarang", "t": 5, "s": 835000, "pf": 265000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Eco Plaza", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Epicentrum", "t": 5, "s": 307500, "pf": 57500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Grand Metropolitan Mall", "t": 4, "s": 470000, "pf": 140000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Green Sedayu Mall", "t": 3, "s": 335000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Kalibata City", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Kelapa Gading", "t": 4, "s": 502500, "pf": 212500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Living Plaza Jababeka", "t": 5, "s": 175000, "pf": 25000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Mall Ciputra Grogol", "t": 2, "s": 335000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Margo City", "t": 4, "s": 1000000, "pf": 320000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-One Bell Park", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Pondok Indah Residence", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Pondok Kopi", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Serpong", "t": 10, "s": 1375000, "pf": 565000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Sumarecon Digital Center", "t": 2, "s": 335000, "pf": 100000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Tebet", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Wang Residence", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRANCH-PLAZA SENAYAN", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Alam Sutera", "t": 2, "s": 563970, "pf": 238270}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-City Walk Elvee Karawaci", "t": 3, "s": 635000, "pf": 200000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Darmawangsa", "t": 3, "s": 105000, "pf": 15000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-District 8", "t": 4, "s": 670000, "pf": 150000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Grand Indonesia", "t": 3, "s": 370000, "pf": 80000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Kemang", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Lippo Mall Puri", "t": 2, "s": 335000, "pf": 75000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Lotte Ciputra World", "t": 6, "s": 440000, "pf": 90000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Oakwood", "t": 5, "s": 572500, "pf": 122500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pasarina", "t": 4, "s": 537500, "pf": 117500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pesanggrahan", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pondok Indah Mall 3", "t": 4, "s": 537500, "pf": 117500}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Taman Anggrek Residences", "t": 3, "s": 105000, "pf": 15000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-The Breeze", "t": 3, "s": 900000, "pf": 300000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Tokyo Riverside PIK", "t": 4, "s": 405000, "pf": 85000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSuperindo-Cikarang", "t": 3, "s": 915275, "pf": 382900}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MVictory Retailindo-Bekasi", "t": 3, "s": 618625, "pf": 202875}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM Regular", "d": "MWHSmith-Jakarta", "t": 2, "s": 600000, "pf": 200000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Lampung", "t": 1, "s": 7000000, "pf": 635000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Padang", "t": 1, "s": 15200000, "pf": 2308000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Solo", "t": 1, "s": 4700000, "pf": 1501000}, {"ym": "2026-04", "p": "Total Logistics", "c": "TSPM TP-SUBDIST", "d": "Surabaya", "t": 1, "s": 5300000, "pf": 602000}, {"ym": "2026-05", "p": "On Call", "c": "Brite Polymer", "d": "Cikarang", "t": 5, "s": 6500000, "pf": 1500000}, {"ym": "2026-05", "p": "On Call", "c": "Cussons", "d": "Lamomgan", "t": 1, "s": 7510000, "pf": 400000}, {"ym": "2026-05", "p": "On Call", "c": "Cussons", "d": "Sidoarjo", "t": 5, "s": 39000000, "pf": 3000000}, {"ym": "2026-05", "p": "On Call", "c": "Cussons", "d": "Surabaya", "t": 2, "s": 15950000, "pf": 1200000}, {"ym": "2026-05", "p": "On Call", "c": "Leegotech", "d": "Cilegon", "t": 1, "s": 4200000, "pf": 1000000}, {"ym": "2026-05", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Cikande", "t": 1, "s": 8000000, "pf": 2000000}, {"ym": "2026-05", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Gresik", "t": 1, "s": 8000000, "pf": 600000}, {"ym": "2026-05", "p": "On Call", "c": "Pancasakti Putra Kencana", "d": "Semarang", "t": 2, "s": 12000000, "pf": 800000}, {"ym": "2026-05", "p": "On Call", "c": "Smart Lab Indonesia", "d": "Semarang", "t": 1, "s": 6000000, "pf": 500000}, {"ym": "2026-05", "p": "On Call", "c": "Yanasurya", "d": "Cikarang", "t": 1, "s": 2600000, "pf": 200000}, {"ym": "2026-05", "p": "On Call", "c": "Yanasurya", "d": "Cilegon", "t": 3, "s": 7800000, "pf": 2250000}, {"ym": "2026-05", "p": "Pick.Service", "c": "Pulunaga", "d": "Cikarang", "t": 4, "s": 11960000, "pf": 3360000}, {"ym": "2026-05", "p": "Pick.Service", "c": "Pulunaga", "d": "Tangerang", "t": 1, "s": 2300000, "pf": 300000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Karawang", "t": 1, "s": 5500000, "pf": 1000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Aneka Coffee", "d": "Semarang", "t": 1, "s": 3200000, "pf": 300000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Klaten", "t": 1, "s": 3800000, "pf": 500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Kudus", "t": 1, "s": 3700000, "pf": 500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Purworejo", "t": 3, "s": 11100000, "pf": 1200000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Semarang", "t": 2, "s": 7400000, "pf": 1000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Solo", "t": 3, "s": 11100000, "pf": 1500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Tasik malaya", "t": 3, "s": 15000000, "pf": 1500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "CS2 Pola Sehat", "d": "Yogyakarta", "t": 1, "s": 3800000, "pf": 500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Bogor", "t": 1, "s": 5100000, "pf": 600000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Indah", "d": "Sukabumi", "t": 1, "s": 5500000, "pf": 1000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Mayora Mojokerto Inbound", "d": "Balaraja", "t": 13, "s": 65000000, "pf": 9500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Bogor", "t": 3, "s": 16518200, "pf": 3500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Gresik", "t": 1, "s": 2020000, "pf": 100000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Jakarta Timur", "t": 5, "s": 27567000, "pf": 4700000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Lampung", "t": 1, "s": 21676500, "pf": 2500000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Purwakarta", "t": 1, "s": 5690000, "pf": 1000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Surabaya", "t": 1, "s": 1500000, "pf": 100000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Sun Paper Source", "d": "Tangerang", "t": 3, "s": 16200000, "pf": 3100000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Darmosugondo)", "t": 4, "s": 5405404, "pf": 405404}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Gresik (Wringin Anom)", "t": 5, "s": 6255630, "pf": 130630}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Mojokerto", "t": 5, "s": 6756755, "pf": 506755}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Pasuruan", "t": 1, "s": 1351351, "pf": 101351}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Surabaya Mekabox", "d": "Sidoarjo", "t": 2, "s": 2252252, "pf": 52252}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Cikarang", "t": 1, "s": 5600000, "pf": 1100000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Jambi", "t": 2, "s": 42000000, "pf": 8000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Lampung", "t": 1, "s": 10000000, "pf": 1300000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Pekanbaru", "t": 1, "s": 24000000, "pf": 4000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Sumatera Selatan", "t": 2, "s": 31000000, "pf": 8000000}, {"ym": "2026-05", "p": "Surabaya Branch", "c": "Susu Internasional", "d": "Surabaya", "t": 2, "s": 3400000, "pf": 400000}, {"ym": "2026-05", "p": "Total Logistics", "c": "Daesang", "d": "Karawang", "t": 3, "s": 4425000, "pf": 405000}, {"ym": "2026-05", "p": "Total Logistics", "c": "Osstem", "d": "Yogyakarta", "t": 1, "s": 5353334, "pf": 2728334}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "d": "Jakarta Selatan", "t": 4, "s": 4374600, "pf": 1524600}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "d": "Surabaya", "t": 1, "s": 4800000, "pf": 1000000}, {"ym": "2026-05", "p": "Total Logistics", "c": "SBM", "d": "Tangerang", "t": 4, "s": 4830000, "pf": 1160000}, {"ym": "2026-05", "p": "Total Logistics", "c": "SKI", "d": "Tangerang", "t": 5, "s": 7300000, "pf": 750000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Alam Sutera", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-BSD City", "t": 2, "s": 335000, "pf": 200000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Deltamas", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Eastvara", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Jakarta Garden City", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Kota Wisata", "t": 2, "s": 285000, "pf": 115000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Mall Ciputra Tangerang", "t": 2, "s": 600000, "pf": 300000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Pakuwon Mall Bekasi", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Sentul City", "t": 2, "s": 285000, "pf": 170000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAeon-Tanjung Barat", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAksesmu-DC STL-Shipment Bogor", "t": 1, "s": 3771075, "pf": 1975325}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Balaraja", "t": 7, "s": 8658925, "pf": 3166875}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Bekasi", "t": 6, "s": 4266125, "pf": 1758875}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Bogor", "t": 7, "s": 4115450, "pf": 1442525}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Cikokol", "t": 5, "s": 6748050, "pf": 3399050}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Cileungsi 2", "t": 4, "s": 8696725, "pf": 4365175}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Depo Balaraja", "t": 6, "s": 3539375, "pf": 1794625}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfaMart-Parung", "t": 5, "s": 5484250, "pf": 2755275}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfamidi-Bekasi", "t": 5, "s": 2881250, "pf": 714875}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MAlfamidi-Bitung", "t": 4, "s": 5596660, "pf": 1144120}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MCircleK-Jakarta", "t": 2, "s": 1478890, "pf": 256065}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Alam Sutra", "t": 2, "s": 335000, "pf": 200000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Ancol", "t": 2, "s": 202500, "pf": 67500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Arion Mall", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Belagio", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Bintaro Xchange", "t": 2, "s": 335000, "pf": 200000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Cikarang Groove", "t": 2, "s": 235000, "pf": 140000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Citra Tower Kemayoran", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-DAILY KEMANG PRATAMA", "t": 2, "s": 235000, "pf": 95000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-DAILY SUPERMARKET CIPONDO", "t": 1, "s": 300000, "pf": 100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Antasari Place", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Bumi Serpong Damai", "t": 2, "s": 335000, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Jatibening", "t": 2, "s": 235000, "pf": 140000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Legenda Wisata", "t": 2, "s": 285000, "pf": 170000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Daily Maggiore Junction", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Depok Mall", "t": 1, "s": 35000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Dukuh Golf Kemayoran", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-FOODHALL GRAND GALAXY PARK", "t": 2, "s": 235000, "pf": 95000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-FX", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Gourmet Plaza Indonesia", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Grand Indonesia", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Grand Tropic", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Grand Wisata Bekasi ( GWB", "t": 2, "s": 235000, "pf": 140000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Istana Sahid Sudirman", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Kelapa Gading", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Lippo Mall Puri", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Mall of Indonesia", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Menara Astra", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Menara Tendean", "t": 1, "s": 167500, "pf": 130000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Millenimum Mall Senen ( M", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Neo Soho", "t": 2, "s": 202500, "pf": 67500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Office 8", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Orange Grove PIK", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Pantai Indah Kapuk", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Plaza Senayan", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Pondok Indah Mall", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Puri Mansion", "t": 2, "s": 202500, "pf": 67500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Sarana Square", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Senayan City", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Senayan Residence", "t": 2, "s": 202500, "pf": 67500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Setiabudi", "t": 2, "s": 202500, "pf": 67500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-South Quarter", "t": 2, "s": 202500, "pf": 67500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Sunter Mall", "t": 1, "s": 35000, "pf": 30000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-TMII", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodHall-Villa Delima", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodhall - DAILY SUPERMARKET SYNTHESIS", "t": 2, "s": 600000, "pf": 300000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MFoodhall-Daily Supermarket Sedayu City", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MHypermart-Balaraja", "t": 2, "s": 600000, "pf": 300000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Bintara", "t": 4, "s": 1199925, "pf": 394975}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Bogor", "t": 3, "s": 1759113, "pf": 870488}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Cikokol", "t": 2, "s": 2347485, "pf": 1229635}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Cipinang", "t": 3, "s": 3457900, "pf": 1540350}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Ciputat", "t": 2, "s": 1817700, "pf": 650950}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Kemayoran", "t": 2, "s": 2345670, "pf": 390945}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Bekasi 1", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Bogor", "t": 1, "s": 170000, "pf": -80000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Ciampea", "t": 1, "s": 250000, "pf": 80000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cikokol 1", "t": 1, "s": 300000, "pf": 100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cikokol 2", "t": 2, "s": 789300, "pf": 417750}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cikupa", "t": 1, "s": 300000, "pf": 100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Cipinang 1", "t": 2, "s": 1987650, "pf": 1041150}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Kemayoran 1", "t": 3, "s": 502500, "pf": 205000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Meikarta", "t": 2, "s": 400000, "pf": 200000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Rawa Buaya", "t": 2, "s": 335000, "pf": 75000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Tangerang 1", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Stock Point Teluk Naga", "t": 1, "s": 401625, "pf": 210375}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndogrosir-Tangerang", "t": 3, "s": 1668433, "pf": 855608}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Bekasi", "t": 8, "s": 6577625, "pf": 2740375}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Bogor 1", "t": 8, "s": 7267050, "pf": 3472000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Bogor 2", "t": 7, "s": 10160750, "pf": 4991425}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Jakarta 1", "t": 8, "s": 7297200, "pf": 2602550}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Jakarta 2", "t": 8, "s": 4985250, "pf": 1856050}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Parung", "t": 6, "s": 8736625, "pf": 4421025}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Tangerang 1", "t": 6, "s": 11139675, "pf": 5655425}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MIndomaret-Tangerang 2", "t": 7, "s": 11691575, "pf": 5949775}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MK3Mart-DC Jakarta", "t": 1, "s": 300000, "pf": 100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Alam Sutera", "t": 2, "s": 436000, "pf": -49600}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Bekasi", "t": 2, "s": 335000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Bogor", "t": 1, "s": 250000, "pf": 80000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Cikarang", "t": 2, "s": 230000, "pf": 60000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Ciputat", "t": 1, "s": 200000, "pf": -100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Jatake", "t": 2, "s": 235000, "pf": -100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Kelapa Gading", "t": 2, "s": 65000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-MM2100", "t": 2, "s": 65000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Meruya", "t": 2, "s": 65000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Pakansari", "t": 2, "s": 70000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Pasar Rebo", "t": 1, "s": 30000, "pf": -5000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MLotte-Serpong", "t": 2, "s": 500000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MPT. Fajar Mitra Indah-Jakarta", "t": 2, "s": 1131375, "pf": 377125}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MPT. Fajar Mitra Indah-Pondok Ungu", "t": 3, "s": 1058550, "pf": 352850}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MPrima-Manis", "t": 1, "s": 476700, "pf": 249700}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MRAMBLA BEKASI", "t": 1, "s": 135000, "pf": -65000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Apartement Mediterania Kemaoy", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Baywalk Mall", "t": 1, "s": 35000, "pf": 30000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Bintaro", "t": 1, "s": 35000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Bintaro Xchange", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Blok M Plaza", "t": 1, "s": 35000, "pf": 30000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Botani Square", "t": 1, "s": 250000, "pf": 80000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Cikarang", "t": 3, "s": 430000, "pf": 195000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Epicentrum", "t": 3, "s": 370000, "pf": 105000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Grand Metropolitan Mall", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Grand Wisata", "t": 1, "s": 200000, "pf": 65000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Jababeka", "t": 2, "s": 70000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Kalibata City", "t": 1, "s": 167500, "pf": 37500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Kelapa Gading", "t": 2, "s": 165000, "pf": -32500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Living Plaza Jababeka", "t": 2, "s": 235000, "pf": 70000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Mall Ciputra Grogol", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Margo City", "t": 3, "s": 750000, "pf": 330000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Menteng Park", "t": 2, "s": 165000, "pf": -32500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-One Bell Park", "t": 1, "s": 35000, "pf": 5000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Serpong", "t": 5, "s": 705000, "pf": 300000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Sumarecon Digital Center", "t": 1, "s": 35000, "pf": 35000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLFarmer-Tebet", "t": 2, "s": 197500, "pf": 32500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRANCH-PLAZA SENAYAN", "t": 2, "s": 202500, "pf": 135000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Alam Sutera", "t": 3, "s": 800000, "pf": 100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-City Walk Elvee Karawaci", "t": 3, "s": 370000, "pf": 100000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Darmawangsa", "t": 4, "s": 272500, "pf": 77500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-District 8", "t": 3, "s": 237500, "pf": 47500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Grand Indonesia", "t": 3, "s": 502500, "pf": 205000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Kemang", "t": 1, "s": 130000, "pf": -37500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Lippo Mall Puri", "t": 2, "s": 335000, "pf": 167500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Lotte Ciputra World", "t": 3, "s": 502500, "pf": 205000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Oakwood", "t": 3, "s": 370000, "pf": 172500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pasarina", "t": 2, "s": 65000, "pf": 0}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pesanggrahan", "t": 3, "s": 370000, "pf": 105000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pondok Indah", "t": 1, "s": 167500, "pf": 130000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Pondok Indah Mall 3", "t": 1, "s": 35000, "pf": 30000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Taman Anggrek Residences", "t": 2, "s": 165000, "pf": -32500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-The Breeze", "t": 3, "s": 635000, "pf": 300000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSBLRanch-Tokyo Riverside PIK", "t": 2, "s": 202500, "pf": 42500}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MSuperindo-Cikarang", "t": 2, "s": 235000, "pf": 95000}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MVictory Retailindo-Bekasi", "t": 1, "s": 225500, "pf": -112750}, {"ym": "2026-05", "p": "Total Logistics", "c": "TSPM Regular", "d": "MWHSmith-Jakarta", "t": 1, "s": 300000, "pf": 100000}];
+
+var period = 'year';
+var selYear  = '2026';
+var selMonth = '2026-05';
+var selYm1   = '2026-01';
+var selYm2   = '2026-05';
+var selProj = '';
+var selCust = '';
+var activeTab = 't1';
+var t1Pills = {};
+var expanded2 = {};
+var expanded4 = {};
+var charts = {};
+
+PROJS.forEach(function(p){ t1Pills[p] = true; });
+
+function fmt(n) {
+  n = Math.round(n);
+  if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(2)+'B';
+  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1)+'jt';
+  if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(0)+'rb';
+  return n ? n.toLocaleString('id-ID') : '0';
+}
+
+function pctS(p, s) { return s > 0 ? ((p/s)*100).toFixed(1)+'%' : '—'; }
+
+function bdg(p, s) {
+  var v = s > 0 ? p/s : 0;
+  var cl = v >= 0.25 ? 'bg' : v >= 0.15 ? 'bb' : v >= 0.08 ? 'ba' : 'br';
+  return '<span class="bdg '+cl+'">' + (v*100).toFixed(1) + '%</span>';
+}
+
+function getYMs() {
+  if (period === 'year')  return YMS.filter(function(y){ return y.startsWith(selYear); });
+  if (period === 'month') return [selMonth];
+  return YMS.filter(function(y){ return y >= selYm1 && y <= selYm2; });
+}
+
+function prevM(ym) {
+  var parts = ym.split('-');
+  var y = parseInt(parts[0]), m = parseInt(parts[1]);
+  return m === 1 ? (y-1)+'-12' : y+'-'+(m-1 < 10 ? '0'+(m-1) : ''+(m-1));
+}
+
+function lyM(ym) {
+  var parts = ym.split('-');
+  return (parseInt(parts[0])-1)+'-'+parts[1];
+}
+
+function sumRows(rows) {
+  return rows.reduce(function(a,r){ return {s:a.s+r.s, b:a.b+r.b, pf:a.pf+r.pf, t:a.t+r.t}; }, {s:0,b:0,pf:0,t:0});
+}
+
+function filtMP(yms) {
+  return MP.filter(function(r){ return yms.indexOf(r.ym) >= 0 && (!selProj || r.p === selProj); });
+}
+
+function filtMC() {
+  var yms = getYMs();
+  return MC.filter(function(r){ return yms.indexOf(r.ym) >= 0 && (!selProj || r.p === selProj) && (!selCust || r.c === selCust); });
+}
+
+function filtMV() {
+  var yms = getYMs();
+  return MV.filter(function(r){ return yms.indexOf(r.ym) >= 0 && (!selProj || r.p === selProj) && (!selCust || r.c === selCust); });
+}
+
+function filtMD() {
+  var yms = getYMs();
+  return MD.filter(function(r){ return yms.indexOf(r.ym) >= 0 && (!selProj || r.p === selProj) && (!selCust || r.c === selCust); });
+}
+
+function getCmpData(yms) {
+  var mode = document.getElementById('sel-cmp').value;
+  if (mode === 'none') return null;
+
+  var pYms;
+  if (mode === 'ly') {
+    // 항상 전년도 같은 월들
+    pYms = yms.map(function(ym){ return lyM(ym); });
+  } else {
+    // Periode lalu: 같은 기간 길이만큼 이전으로 이동
+    if (period === 'year') {
+      // 연도 선택 → 전년도 같은 기간
+      pYms = yms.map(function(ym){ return lyM(ym); });
+    } else if (period === 'month') {
+      // 단일 월 → 전월
+      pYms = yms.map(function(ym){ return prevM(ym); });
+    } else {
+      // Range → 같은 길이만큼 이전 기간
+      // 예: Jan~Mar(3개월) → Oct~Dec 전년도
+      var len = yms.length;
+      var earliest = yms[0];
+      var parts = earliest.split('-');
+      var y = parseInt(parts[0]), m = parseInt(parts[1]);
+      var pYmsList = [];
+      for (var i = 0; i < len; i++) {
+        m--;
+        if (m < 1) { m = 12; y--; }
+        pYmsList.unshift(y + '-' + (m < 10 ? '0'+m : ''+m));
+      }
+      pYms = pYmsList;
+    }
+  }
+  return sumRows(filtMP(pYms));
+}
+
+function mkChart(id, type, labels, datasets, opts) {
+  if (charts[id]) { charts[id].destroy(); }
+  var ctx = document.getElementById(id);
+  if (!ctx) return;
+  var noscale = (type === 'doughnut' || type === 'pie');
+  var cfg = {
+    type: type,
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: noscale ? {} : {
+        y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { color: '#e5e7eb' } },
+        x: { ticks: { color: '#6b7280', font: { size: 10 } } }
+      }
+    }
+  };
+  if (opts) {
+    if (opts.yCallback && !noscale) cfg.options.scales.y.ticks.callback = opts.yCallback;
+    if (opts.stacked && !noscale) { cfg.options.scales.x.stacked = true; cfg.options.scales.y.stacked = true; }
+    if (opts.indexAxis) cfg.options.indexAxis = opts.indexAxis;
+    if (opts.legend) cfg.options.plugins.legend = { display: true, position: 'right', labels: { font:{size:10}, boxWidth:10 } };
+  }
+  charts[id] = new Chart(ctx, cfg);
+  return charts[id];
+}
+
+function setPeriod(p, btn) {
+  period = p;
+  document.querySelectorAll('.pb').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  document.getElementById('sel-year').style.display   = p === 'year'  ? '' : 'none';
+  document.getElementById('sel-month').style.display  = p === 'month' ? '' : 'none';
+  document.getElementById('rng-inputs').style.display = p === 'range' ? 'flex' : 'none';
+  renderAll();
+}
+
+function onProjChange() {
+  selProj = document.getElementById('sel-proj').value;
+  selCust = '';
+  var custs = [];
+  MC.forEach(function(r){ if ((!selProj || r.p === selProj) && custs.indexOf(r.c) < 0) custs.push(r.c); });
+  custs.sort();
+  var html = '<option value="">Semua</option>';
+  custs.forEach(function(c){ html += '<option>' + c + '</option>'; });
+  document.getElementById('sel-cust').innerHTML = html;
+  renderAll();
+}
+
+function showTab(t) {
+  activeTab = t;
+  ['t1','t2','t3','t4','t5'].forEach(function(id){
+    document.getElementById('tab-'+id).classList.toggle('on', id === t);
+    document.getElementById('vw-'+id).classList.toggle('on', id === t);
+  });
+  renderAll();
+}
+
+function renderAll() {
+  selProj = document.getElementById('sel-proj').value;
+  selCust = document.getElementById('sel-cust').value;
+  selYear  = document.getElementById('sel-year').value;
+  selMonth = document.getElementById('sel-month').value;
+  selYm1   = document.getElementById('ym1').value;
+  selYm2   = document.getElementById('ym2').value;
+  if (activeTab === 't1') renderT1();
+  else if (activeTab === 't2') renderT2();
+  else if (activeTab === 't3') renderT3();
+  else if (activeTab === 't4') renderT4();
+  else if (activeTab === 't5') renderT5();
+}
+
+function renderKPI(elId, cur, prev) {
+  var margin = cur.s > 0 ? cur.pf/cur.s : 0;
+  var pm = (prev && prev.s > 0) ? prev.pf/prev.s : null;
+  function kcard(label, val, prevVal, fmtFn, isM) {
+    var delta = '';
+    if (prevVal !== null && prevVal !== undefined) {
+      var dv  = val - prevVal;
+      var up  = dv >= 0;
+      var cls = up ? 'up' : 'dn';
+      var arrow = up ? '&#9650;' : '&#9660;';
+      var dstr = isM ? Math.abs(dv*100).toFixed(1)+'pp' : fmt(Math.abs(dv));
+      // % 변화율 추가 (margin 제외)
+      var pctStr = '';
+      if (!isM && prevVal !== 0) {
+        var pct = (dv / Math.abs(prevVal) * 100);
+        pctStr = ' <span style="font-size:10px;opacity:.8">('+( pct >= 0 ? '+' : '')+pct.toFixed(1)+'%)</span>';
+      }
+      delta = '<div class="kd '+cls+'">' + arrow + ' ' + dstr + pctStr + '</div>';
+      // 비교 기준값도 작게 표시
+      delta += '<div style="font-size:10px;color:var(--muted);margin-top:1px">vs '+fmtFn(prevVal)+'</div>';
+    }
+    return '<div class="kc"><div class="kl">'+label+'</div><div class="kv">'+fmtFn(val)+'</div>'+delta+'</div>';
+  }
+  document.getElementById(elId).innerHTML =
+    kcard('Selling', cur.s, prev ? prev.s : null, fmt, false) +
+    kcard('Buying', cur.b, prev ? prev.b : null, fmt, false) +
+    kcard('Profit', cur.pf, prev ? prev.pf : null, fmt, false) +
+    kcard('Margin', margin, pm, function(v){ return (v*100).toFixed(1)+'%'; }, true) +
+    kcard('Trips', cur.t, prev ? prev.t : null, function(v){ return Math.round(v).toLocaleString(); }, false);
+}
+
+function renderT1() {
+  var yms = getYMs();
+  var cur = sumRows(filtMP(yms));
+  var prev = getCmpData(yms);
+  renderKPI('t1-kpi', cur, prev);
+
+  var cmpMode = document.getElementById('sel-cmp').value;
+  if (prev && cmpMode !== 'none') {
+    // 비교 기간 레이블 결정
+    var label;
+    if (cmpMode === 'ly') {
+      label = 'Tahun lalu (sama periode)';
+    } else if (period === 'year') {
+      label = 'Tahun lalu (' + (parseInt(selYear)-1) + ')';
+    } else if (period === 'month') {
+      label = 'Bulan lalu';
+    } else {
+      label = 'Periode sebelumnya';
+    }
+
+    // 현재 기간 레이블
+    var curLabel = period === 'year' ? selYear :
+                   period === 'month' ? selMonth :
+                   selYm1 + ' ~ ' + selYm2;
+
+    function cmpRow(lbl, curV, prevV, fmtFn) {
+      var dv = curV - prevV;
+      var pct = prevV !== 0 ? (dv/Math.abs(prevV)*100).toFixed(1) : '—';
+      var col = dv >= 0 ? 'var(--grn)' : 'var(--red)';
+      var sign = dv >= 0 ? '+' : '';
+      return '<div class="cmp-row">' +
+        '<span style="color:var(--muted)">'+lbl+'</span>' +
+        '<span class="num">'+fmtFn(curV)+'</span>' +
+        '<span class="num">'+fmtFn(prevV)+'</span>' +
+        '<span class="num" style="color:'+col+';font-weight:600">'+sign+pct+'%</span>' +
+      '</div>';
+    }
+
+    var hdr = '<div class="cmp-row" style="font-weight:600;font-size:10px;color:var(--muted)">' +
+      '<span>항목</span><span class="num">'+curLabel+'</span><span class="num">'+label+'</span><span class="num">증감</span></div>';
+
+    var rows = hdr +
+      cmpRow('Selling', cur.s,  prev.s,  fmt) +
+      cmpRow('Buying',  cur.b,  prev.b,  fmt) +
+      cmpRow('Profit',  cur.pf, prev.pf, fmt) +
+      cmpRow('Margin',
+        cur.s  > 0 ? parseFloat((cur.pf/cur.s*100).toFixed(1))  : 0,
+        prev.s > 0 ? parseFloat((prev.pf/prev.s*100).toFixed(1)): 0,
+        function(v){ return v.toFixed(1)+'%'; }) +
+      cmpRow('Trips', cur.t, prev.t, function(v){ return Math.round(v).toLocaleString(); });
+
+    document.getElementById('t1-cmp').innerHTML =
+      '<div class="cmp-box" style="margin-bottom:12px">' +
+        '<div class="cmp-title">실적 비교</div>' + rows +
+      '</div>';
+  } else {
+    document.getElementById('t1-cmp').innerHTML = '';
+  }
+
+  var activePj = selProj ? [selProj] : PROJS.filter(function(p){ return t1Pills[p]; });
+
+  // Pills
+  var pillsHtml = '';
+  PROJS.forEach(function(p) {
+    var on = t1Pills[p];
+    var c = PC[p];
+    var style = on ? 'border-color:'+c+';color:'+c+';background:'+c+'22;' : '';
+    var dot = '<span class="ld" style="background:'+c+';opacity:'+(on?1:0.3)+'"></span>';
+    pillsHtml += '<div class="pill'+(on?' on':'')+'" style="'+style+'" onclick="togglePill('+PROJS.indexOf(p)+')">' + dot + p.replace(' (Trucking Head)','') + '</div>';
+  });
+  document.getElementById('t1-pills').innerHTML = pillsHtml;
+
+  // Legend
+  var legHtml = '';
+  activePj.forEach(function(p){ legHtml += '<span><span class="ld" style="background:'+PC[p]+'"></span>'+p.replace(' (Trucking Head)','').replace('Total Logistics','TotLog')+'</span>'; });
+  document.getElementById('t1-leg1').innerHTML = legHtml;
+  document.getElementById('t1-leg2').innerHTML = legHtml;
+
+  // Profit chart
+  var profDS = activePj.map(function(p) {
+    var c = PC[p];
+    return {
+      label: p,
+      data: YMS.map(function(ym){ var r = MP.filter(function(d){ return d.ym===ym && d.p===p; })[0]; return r ? parseFloat((r.pf/1e6).toFixed(1)) : null; }),
+      borderColor: c, backgroundColor: c+'25', tension: 0.3, pointRadius: 3, borderWidth: 2, spanGaps: true
+    };
+  });
+  mkChart('c1', 'line', YML, profDS, { yCallback: function(v){ return v+'jt'; } });
+
+  // Margin chart
+  var margDS = activePj.map(function(p) {
+    var c = PC[p];
+    return {
+      label: p,
+      data: YMS.map(function(ym){ var r = MP.filter(function(d){ return d.ym===ym && d.p===p; })[0]; return (r && r.s > 0) ? parseFloat(((r.pf/r.s)*100).toFixed(1)) : null; }),
+      borderColor: c, backgroundColor: c+'25', tension: 0.3, pointRadius: 3, borderWidth: 2, spanGaps: true
+    };
+  });
+  mkChart('c2', 'line', YML, margDS, { yCallback: function(v){ return v+'%'; } });
+
+  // Table
+  var tbl = '<table><thead><tr><th>Bulan</th><th>Proyek</th><th style="text-align:right">Selling</th><th style="text-align:right">Buying</th><th style="text-align:right">Profit</th><th style="text-align:right">Margin</th><th style="text-align:right">Trips</th></tr></thead><tbody>';
+  yms.forEach(function(ym) {
+    var rows = activePj.map(function(p){ return MP.filter(function(r){ return r.ym===ym && r.p===p; })[0]; }).filter(Boolean);
+    rows.sort(function(a,b){ return b.pf-a.pf; });
+    var tot = sumRows(rows);
+    rows.forEach(function(r) {
+      var label = YML[YMS.indexOf(r.ym)];
+      var pshort = r.p.replace(' (Trucking Head)','').replace('Total Logistics','TotLog');
+      tbl += '<tr><td class="num">'+label+'</td><td><span style="font-size:10px;padding:1px 6px;border-radius:5px;background:'+PC[r.p]+'22;color:'+PC[r.p]+'">'+pshort+'</span></td>' +
+        '<td style="text-align:right" class="num">'+fmt(r.s)+'</td>' +
+        '<td style="text-align:right" class="num">'+fmt(r.b)+'</td>' +
+        '<td style="text-align:right" class="num pp">'+fmt(r.pf)+'</td>' +
+        '<td style="text-align:right">'+bdg(r.pf,r.s)+'</td>' +
+        '<td style="text-align:right" class="num">'+r.t+'</td></tr>';
+    });
+    tbl += '<tr class="tt"><td colspan="2">'+YML[YMS.indexOf(ym)]+' Total</td>' +
+      '<td style="text-align:right" class="num">'+fmt(tot.s)+'</td>' +
+      '<td style="text-align:right" class="num">'+fmt(tot.b)+'</td>' +
+      '<td style="text-align:right" class="num pp">'+fmt(tot.pf)+'</td>' +
+      '<td style="text-align:right">'+bdg(tot.pf,tot.s)+'</td>' +
+      '<td style="text-align:right" class="num">'+tot.t+'</td></tr>';
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('t1-tbl').innerHTML = tbl;
+}
+
+function togglePill(idx) { var p = PROJS[idx]; t1Pills[p] = !t1Pills[p]; renderT1(); }
+
+function renderT2() {
+  var rows = filtMC();
+  var yms = getYMs();
+  var prev = getCmpData(yms);
+  var tot = sumRows(rows);
+  renderKPI('t2-kpi', tot, prev);
+
+  // Cust totals
+  var custMap = {};
+  rows.forEach(function(r) {
+    if (!custMap[r.c]) custMap[r.c] = { s:0, pf:0, t:0, p:r.p };
+    custMap[r.c].s += r.s; custMap[r.c].pf += r.pf; custMap[r.c].t += r.t;
+  });
+  var custArr = Object.keys(custMap).map(function(c){ return { c:c, s:custMap[c].s, pf:custMap[c].pf, t:custMap[c].t, p:custMap[c].p }; });
+  custArr.sort(function(a,b){ return b.s-a.s; });
+  var maxS = custArr.length ? custArr[0].s : 1;
+
+  var barsHtml = '';
+  custArr.slice(0,12).forEach(function(v) {
+    var col = PC[v.p] || '#888';
+    var wS = Math.max(2, v.s/maxS*100);
+    var wP = Math.max(2, v.pf/maxS*100);
+    barsHtml += '<div class="br2"><div class="bn" title="'+v.c+'">'+v.c+'</div>' +
+      '<div class="bw"><div class="bf" style="width:'+wS+'%;background:'+col+'30;"></div>' +
+      '<div class="bf" style="width:'+wP+'%;background:'+col+';"></div></div>' +
+      '<div class="bv">'+fmt(v.pf)+'</div></div>';
+  });
+  barsHtml += '<div style="font-size:10px;color:var(--muted);margin-top:4px">' +
+    '<span style="display:inline-block;width:9px;height:5px;border-radius:2px;background:#ffffff20;margin-right:3px;vertical-align:middle"></span>Selling&nbsp;' +
+    '<span style="display:inline-block;width:9px;height:5px;border-radius:2px;background:#4f8ef7;margin-right:3px;vertical-align:middle"></span>Profit</div>';
+  document.getElementById('t2-bars').innerHTML = barsHtml;
+
+  // Trend chart
+  var top8 = custArr.slice(0,8).map(function(v){ return v.c; });
+  var tDS = top8.map(function(c, i) {
+    var col = PC[custMap[c] ? custMap[c].p : ''] || DC[i] || '#888';
+    return {
+      label: c,
+      data: yms.map(function(ym){ var r = rows.filter(function(x){ return x.c===c && x.ym===ym; })[0]; return r ? parseFloat((r.s/1e6).toFixed(1)) : 0; }),
+      backgroundColor: col+'80', borderColor: col, borderWidth: 1
+    };
+  });
+  mkChart('c3', 'bar', yms.map(function(y){ return YML[YMS.indexOf(y)] || y; }), tDS, { yCallback: function(v){ return v+'jt'; } });
+
+  // Table with expand
+  var projs = selProj ? [selProj] : PROJS;
+  var tbl = '<table><thead><tr><th style="min-width:150px">Proyek / Customer</th>';
+  yms.forEach(function(y){ tbl += '<th style="text-align:right;min-width:65px">'+YML[YMS.indexOf(y)]+'</th>'; });
+  tbl += '<th style="text-align:right">Total Sell</th><th style="text-align:right">Profit</th><th style="text-align:right">Margin</th><th style="text-align:right">Trips</th></tr></thead><tbody>';
+
+  projs.forEach(function(proj) {
+    var pr = rows.filter(function(r){ return r.p === proj; });
+    if (!pr.length) return;
+    var custs = [];
+    pr.forEach(function(r){ if (custs.indexOf(r.c) < 0) custs.push(r.c); });
+    custs.sort();
+    var ptot = sumRows(pr);
+    var isOpen = expanded2[proj];
+    var projIdx = PROJS.indexOf(proj);
+    var pshort = proj.replace(' (Trucking Head)','').replace('Total Logistics','TotLog');
+    tbl += '<tr class="tg" onclick="toggleExp2('+projIdx+')">' + '<td><span class="ch">'+(isOpen?'&#9660;':'&#9654;')+'</span><strong>'+pshort+'</strong></td>';
+    yms.forEach(function(ym) {
+      var s = pr.filter(function(x){ return x.ym===ym; }).reduce(function(a,x){ return a+x.s; }, 0);
+      tbl += '<td style="text-align:right;font-size:10px" class="num">'+(s?fmt(s):'—')+'</td>';
+    });
+    tbl += '<td style="text-align:right" class="num">'+fmt(ptot.s)+'</td><td style="text-align:right" class="num pp">'+fmt(ptot.pf)+'</td><td style="text-align:right">'+bdg(ptot.pf,ptot.s)+'</td><td style="text-align:right" class="num">'+ptot.t+'</td></tr>';
+    if (isOpen) {
+      custs.forEach(function(c) {
+        var cr = pr.filter(function(r){ return r.c===c; });
+        var ct = sumRows(cr);
+        tbl += '<tr class="ts"><td style="padding-left:22px">'+c+'</td>';
+        yms.forEach(function(ym) {
+          var r = cr.filter(function(x){ return x.ym===ym; })[0];
+          tbl += '<td style="text-align:right" class="num">'+(r?fmt(r.s):'—')+'</td>';
+        });
+        tbl += '<td style="text-align:right" class="num">'+fmt(ct.s)+'</td><td style="text-align:right" class="num pp">'+fmt(ct.pf)+'</td><td style="text-align:right">'+bdg(ct.pf,ct.s)+'</td><td style="text-align:right" class="num">'+ct.t+'</td></tr>';
+      });
+    }
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('t2-tbl').innerHTML = tbl;
+
+  // ── Vendor Mix per Customer ──────────────────────────────
+  var mvRows = filtMV();
+  // 고객별 벤더 집계
+  var custVendMap = {};
+  mvRows.forEach(function(r) {
+    if (!custVendMap[r.c]) custVendMap[r.c] = {};
+    custVendMap[r.c][r.v] = (custVendMap[r.c][r.v] || 0) + r.t;
+  });
+  // 전체 벤더 목록 (trip 기준 상위)
+  var allVendTot = {};
+  mvRows.forEach(function(r){ allVendTot[r.v] = (allVendTot[r.v]||0)+r.t; });
+  var topVends = Object.keys(allVendTot).sort(function(a,b){ return allVendTot[b]-allVendTot[a]; }).slice(0,8);
+
+  // 고객 목록 (selling 기준 정렬)
+  var custSellMap = {};
+  mvRows.forEach(function(r){ custSellMap[r.c] = (custSellMap[r.c]||0) + r.s; });
+  var custListV = Object.keys(custSellMap).sort(function(a,b){ return custSellMap[b]-custSellMap[a]; });
+
+  var vTbl = '<table><thead><tr><th style="min-width:140px">Customer</th>';
+  topVends.forEach(function(v){ vTbl += '<th style="text-align:right;min-width:55px">'+v+'</th>'; });
+  vTbl += '<th style="text-align:right">Others</th><th style="text-align:right">Total</th></tr></thead><tbody>';
+
+  custListV.forEach(function(c) {
+    var vm = custVendMap[c] || {};
+    var tot = Object.values(vm).reduce(function(a,b){ return a+b; }, 0);
+    var othersT = tot - topVends.reduce(function(a,v){ return a+(vm[v]||0); }, 0);
+    vTbl += '<tr><td style="font-weight:500">'+c+'</td>';
+    topVends.forEach(function(v){
+      var cnt = vm[v] || 0;
+      var pct = tot > 0 ? (cnt/tot*100).toFixed(0) : 0;
+      vTbl += '<td style="text-align:right" class="num">'+(cnt > 0 ? cnt+'<span style="color:var(--dim);font-size:9px;margin-left:2px">'+pct+'%</span>' : '—')+'</td>';
+    });
+    vTbl += '<td style="text-align:right" class="num">'+(othersT > 0 ? othersT : '—')+'</td>';
+    vTbl += '<td style="text-align:right;font-weight:500" class="num">'+tot+'</td></tr>';
+  });
+  vTbl += '</tbody></table>';
+  document.getElementById('t2-vendor').innerHTML = vTbl;
+}
+
+function toggleExp2(idx) { var proj = PROJS[idx]; expanded2[proj] = !expanded2[proj]; renderT2(); }
+
+function renderT3() {
+  var rows = filtMV();
+  var yms = getYMs();
+  var vehs = [];
+  rows.forEach(function(r){ if (vehs.indexOf(r.v) < 0) vehs.push(r.v); });
+  vehs.sort();
+
+  var cross = '<table><thead><tr><th>Bulan</th>';
+  vehs.forEach(function(v){ cross += '<th style="text-align:right">'+v+'</th>'; });
+  cross += '<th style="text-align:right">Total</th></tr></thead><tbody>';
+  yms.forEach(function(ym) {
+    var yr = rows.filter(function(r){ return r.ym===ym; });
+    var tot = yr.reduce(function(a,r){ return a+r.t; }, 0);
+    cross += '<tr><td class="num">'+YML[YMS.indexOf(ym)]+'</td>';
+    vehs.forEach(function(v){ var s = yr.filter(function(r){ return r.v===v; }).reduce(function(a,r){ return a+r.t; }, 0); cross += '<td style="text-align:right" class="num">'+(s||'—')+'</td>'; });
+    cross += '<td style="text-align:right;font-weight:500" class="num">'+tot+'</td></tr>';
+  });
+  var allTot = vehs.map(function(v){ return rows.filter(function(r){ return r.v===v; }).reduce(function(a,r){ return a+r.t; },0); });
+  cross += '<tr class="tt"><td>Total</td>';
+  allTot.forEach(function(t){ cross += '<td style="text-align:right" class="num">'+t+'</td>'; });
+  cross += '<td style="text-align:right" class="num">'+allTot.reduce(function(a,b){ return a+b; },0)+'</td></tr></tbody></table>';
+  document.getElementById('t3-cross').innerHTML = cross;
+
+  var vTot = {};
+  rows.forEach(function(r){ vTot[r.v] = (vTot[r.v]||0)+r.t; });
+  var vArr = Object.keys(vTot).map(function(v){ return {v:v, t:vTot[v]}; }).sort(function(a,b){ return b.t-a.t; });
+  var maxV = vArr.length ? vArr[0].t : 1;
+  var vh = '';
+  vArr.forEach(function(x){ vh += '<div class="br2"><div class="bn">'+x.v+'</div><div class="bw"><div class="bf" style="width:'+Math.max(2,x.t/maxV*100)+'%;background:var(--acc)"></div></div><div class="bv">'+x.t+' trips</div></div>'; });
+  document.getElementById('t3-bars').innerHTML = vh;
+
+  var custs = [];
+  rows.forEach(function(r){ if (custs.indexOf(r.c) < 0) custs.push(r.c); });
+  custs.sort();
+  var det = '<table><thead><tr><th style="min-width:130px">Customer</th><th style="min-width:65px">Kendaraan</th>';
+  yms.forEach(function(y){ det += '<th style="text-align:right;min-width:45px">'+YML[YMS.indexOf(y)]+'</th>'; });
+  det += '<th style="text-align:right">Total</th></tr></thead><tbody>';
+  custs.forEach(function(c) {
+    var cr = rows.filter(function(r){ return r.c===c; });
+    var cvs = [];
+    cr.forEach(function(r){ if (cvs.indexOf(r.v) < 0) cvs.push(r.v); });
+    cvs.sort();
+    cvs.forEach(function(v, i) {
+      var vr = cr.filter(function(r){ return r.v===v; });
+      var tot = vr.reduce(function(a,r){ return a+r.t; }, 0);
+      det += '<tr><td style="'+(i>0?'color:transparent;':'')+'">'+(i===0?c:'')+'</td><td style="color:var(--muted);font-size:10.5px">'+v+'</td>';
+      yms.forEach(function(ym){ var r = vr.filter(function(x){ return x.ym===ym; })[0]; det += '<td style="text-align:right" class="num">'+(r?r.t:'—')+'</td>'; });
+      det += '<td style="text-align:right;font-weight:500" class="num">'+tot+'</td></tr>';
+    });
+  });
+  det += '</tbody></table>';
+  document.getElementById('t3-det').innerHTML = det;
+}
+
+function renderT4() {
+  var rows = filtMD();
+  var yms = getYMs();
+  var dTot = {}, dRev = {}, dPf = {};
+  rows.forEach(function(r){ dTot[r.d]=(dTot[r.d]||0)+r.t; dRev[r.d]=(dRev[r.d]||0)+r.s; dPf[r.d]=(dPf[r.d]||0)+r.pf; });
+  var top10 = Object.keys(dTot).sort(function(a,b){ return dTot[b]-dTot[a]; }).slice(0,10);
+
+  // 좌측: 목적지별 트립수 가로 바 차트 (grouped, 명확)
+  var destTripArr = Object.keys(dTot).sort(function(a,b){ return dTot[b]-dTot[a]; }).slice(0,12);
+  mkChart('c4', 'bar', destTripArr, [{
+    label:'Trips', data: destTripArr.map(function(d){ return dTot[d]; }),
+    backgroundColor: DC.map(function(c){ return c+'CC'; }), borderRadius: 3
+  }], { indexAxis:'y' });
+
+  // 우측: Selling + Profit 금액 + Margin %
+  var dRevArr = Object.keys(dRev).sort(function(a,b){ return dRev[b]-dRev[a]; });
+  var maxRev = dRevArr.length ? dRev[dRevArr[0]] : 1;
+  var bh = '';
+  dRevArr.slice(0,12).forEach(function(d, i) {
+    var rev = dRev[d]; var pf = dPf[d];
+    var margin = rev > 0 ? (pf/rev*100).toFixed(1) : '0.0';
+    var pfPct = rev > 0 ? Math.max(2, pf/rev*100) : 0;
+    var col = DC[i] || '#4f8ef7';
+    var mgColor = parseFloat(margin) >= 15 ? 'var(--grn)' : parseFloat(margin) >= 8 ? 'var(--amb)' : 'var(--red)';
+    bh += '<div style="margin-bottom:8px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">' +
+        '<div class="bn" title="'+d+'" style="font-size:11px;font-weight:500">'+d+'</div>' +
+        '<div style="display:flex;gap:8px;font-size:10.5px;font-family:var(--mono)">' +
+          '<span>'+fmt(rev)+'</span>' +
+          '<span style="color:'+mgColor+';font-weight:600">'+margin+'%</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="bw" style="height:6px">' +
+        '<div class="bf" style="width:'+Math.max(2,rev/maxRev*100)+'%;background:'+col+'40;height:100%"></div>' +
+        '<div class="bf" style="width:'+pfPct+'%;background:'+col+';height:100%"></div>' +
+      '</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin-top:2px">Profit: '+fmt(pf)+'</div>' +
+    '</div>';
+  });
+  bh += '<div style="font-size:10px;color:var(--muted);margin-top:6px;border-top:1px solid var(--border);padding-top:6px">' +
+    '<span style="display:inline-block;width:9px;height:5px;border-radius:2px;background:#cccccc40;margin-right:3px;vertical-align:middle"></span>Selling&nbsp;' +
+    '<span style="display:inline-block;width:9px;height:5px;border-radius:2px;background:#4f8ef7;margin-right:3px;vertical-align:middle"></span>Profit' +
+  '</div>';
+  document.getElementById('t4-bars').innerHTML = bh;
+
+var custs = []; var custKeys4 = custs;
+  rows.forEach(function(r){ if (custs.indexOf(r.c) < 0) custs.push(r.c); });
+  custs.sort();
+  custKeys4 = custs;
+  var tbl = '<table><thead><tr><th style="min-width:140px">Customer</th><th style="min-width:110px">Destinasi</th>';
+  yms.forEach(function(y){ tbl += '<th style="text-align:right;min-width:45px">'+YML[YMS.indexOf(y)]+'</th>'; });
+  tbl += '<th style="text-align:right">Trips</th><th style="text-align:right">Selling</th><th style="text-align:right">Margin</th></tr></thead><tbody>';
+
+  custs.forEach(function(c) {
+    var cr = rows.filter(function(r){ return r.c===c; });
+    var ct = cr.reduce(function(a,r){ return {t:a.t+r.t, s:a.s+r.s, pf:a.pf+r.pf}; }, {t:0,s:0,pf:0});
+    var isOpen = expanded4[c];
+    var custIdx = custKeys.indexOf(c);
+    tbl += '<tr class="tg" onclick="toggleExp4('+custIdx+')">' + '<td colspan="2"><span class="ch">'+(isOpen?'&#9660;':'&#9654;')+'</span><strong>'+c+'</strong></td>';
+    yms.forEach(function(ym){ var s=cr.filter(function(r){ return r.ym===ym; }).reduce(function(a,r){ return a+r.t; },0); tbl+='<td style="text-align:right;font-size:10px" class="num">'+(s||'—')+'</td>'; });
+    tbl += '<td style="text-align:right" class="num">'+ct.t+'</td><td style="text-align:right" class="num">'+fmt(ct.s)+'</td><td style="text-align:right">'+bdg(ct.pf,ct.s)+'</td></tr>';
+    if (isOpen) {
+      var dests = [];
+      cr.forEach(function(r){ if (dests.indexOf(r.d) < 0) dests.push(r.d); });
+      dests.sort(function(a,b){ return cr.filter(function(r){ return r.d===b; }).reduce(function(x,r){ return x+r.t; },0) - cr.filter(function(r){ return r.d===a; }).reduce(function(x,r){ return x+r.t; },0); });
+      dests.forEach(function(dest) {
+        var dr = cr.filter(function(r){ return r.d===dest; });
+        var dt = dr.reduce(function(a,r){ return {t:a.t+r.t, s:a.s+r.s, pf:a.pf+r.pf}; }, {t:0,s:0,pf:0});
+        tbl += '<tr class="ts"><td style="padding-left:18px;color:var(--muted)">'+c+'</td><td>'+dest+'</td>';
+        yms.forEach(function(ym){ var r=dr.filter(function(x){ return x.ym===ym; })[0]; tbl+='<td style="text-align:right" class="num">'+(r?r.t:'—')+'</td>'; });
+        tbl += '<td style="text-align:right" class="num">'+dt.t+'</td><td style="text-align:right" class="num">'+fmt(dt.s)+'</td><td style="text-align:right">'+bdg(dt.pf,dt.s)+'</td></tr>';
+      });
+    }
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('t4-tbl').innerHTML = tbl;
+
+  // ── Destinasi × Vendor 테이블 ────────────────────────────
+  // destVendor 데이터가 있으면 사용, 없으면 MV+MD에서 근사치 계산
+  var dvData = (G.destinasi && G.destinasi.destVendor) ? G.destinasi.destVendor : null;
+
+  if (!dvData) {
+    // 폴백: 현재 하드코딩 데이터에서 없음 → 안내 메시지
+    document.getElementById('t4-destvend').innerHTML =
+      '<div style="color:var(--muted);font-size:12px;padding:12px">Apps Script 재배포 후 데이터가 표시됩니다. (Vendor 컬럼 추가됨)</div>';
+    return;
+  }
+
+  // 목적지 총 selling 기준 정렬
+  var dvSorted = dvData.slice().sort(function(a,b){
+    var sa = a.vendors.reduce(function(x,v){ return x+v.revenue; },0);
+    var sb = b.vendors.reduce(function(x,v){ return x+v.revenue; },0);
+    return sb - sa;
+  }).slice(0,25);
+
+  var dvTbl = '<table><thead><tr>' +
+    '<th style="min-width:130px">Destinasi</th>' +
+    '<th style="min-width:130px">Vendor</th>' +
+    '<th style="text-align:right">Trips</th>' +
+    '<th style="text-align:right">Selling (Rp)</th>' +
+    '<th style="text-align:right">Profit (Rp)</th>' +
+    '<th style="text-align:right">Margin</th>' +
+  '</tr></thead><tbody>';
+
+  dvSorted.forEach(function(dv, di) {
+    var totT = dv.vendors.reduce(function(x,v){ return x+v.trips; },0);
+    var totS = dv.vendors.reduce(function(x,v){ return x+v.revenue; },0);
+    var totP = dv.vendors.reduce(function(x,v){ return x+v.profit; },0);
+    var totM = totS > 0 ? (totP/totS*100).toFixed(1) : '0.0';
+    var isOpen = expandedDV[dv.dest];
+
+    // 목적지 합계 행
+    dvTbl += '<tr class="tg" onclick="toggleDV(\''+dv.dest.replace(/'/g,"\\'")+'\')" style="cursor:pointer">' +
+      '<td><span class="ch">'+(isOpen?'&#9660;':'&#9654;')+'</span><strong>'+dv.dest+'</strong></td>' +
+      '<td style="color:var(--muted);font-size:11px">'+dv.vendors.length+'개 벤더</td>' +
+      '<td style="text-align:right" class="num">'+totT+'</td>' +
+      '<td style="text-align:right" class="num">'+fmt(totS)+'</td>' +
+      '<td style="text-align:right" class="num '+(totP>=0?'pp':'pn')+'">'+fmt(totP)+'</td>' +
+      '<td style="text-align:right">'+bdg(totP,totS)+'</td>' +
+    '</tr>';
+
+    // 펼쳐진 경우 벤더별 상세
+    if (isOpen) {
+      dv.vendors.forEach(function(v) {
+        dvTbl += '<tr class="ts">' +
+          '<td style="padding-left:20px;color:var(--muted)">'+dv.dest+'</td>' +
+          '<td style="font-weight:500">'+v.vendor+'</td>' +
+          '<td style="text-align:right" class="num">'+v.trips+'</td>' +
+          '<td style="text-align:right" class="num">'+fmt(v.revenue)+'</td>' +
+          '<td style="text-align:right" class="num '+(v.profit>=0?'pp':'pn')+'">'+fmt(v.profit)+'</td>' +
+          '<td style="text-align:right">'+bdg(v.profit,v.revenue)+'</td>' +
+        '</tr>';
+      });
+    }
+  });
+
+  dvTbl += '</tbody></table>';
+  document.getElementById('t4-destvend').innerHTML = dvTbl;
+}
+
+var expandedDV = {};
+function toggleDV(dest) { expandedDV[dest] = !expandedDV[dest]; renderT4(); }
+
+var expandedDV5 = {};
+function toggleDV5(dest) { expandedDV5[dest] = !expandedDV5[dest]; renderT5(); }
+
+// ════════════════════════════════════════════════
+//  실시간 연동 — Apps Script URL을 여기에 입력
+// ════════════════════════════════════════════════
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4f8tLtRDI2Cubga3ZxGc_IwckuMclorNQ_SWloSpgJyxcGgOoN4sr54MktSlNqtMaIA/exec';
+
+function loadLiveData() {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('YOUR_') >= 0) {
+    renderAll();
+    return;
+  }
+
+  document.getElementById('live-status').textContent = '⏳ 데이터 로딩 중...';
+  document.getElementById('live-status').style.color = 'var(--amb)';
+
+  // JSONP 방식 (타임아웃 60초, 콜백 보존)
+  var cbName = 'lgli_cb_' + Date.now();
+
+  window[cbName] = function(json) {
+    // 콜백은 바로 삭제하지 않음 — 혹시 중복 호출 방지만
+    if (window[cbName + '_done']) return;
+    window[cbName + '_done'] = true;
+
+    try {
+      if (json.status !== 'ok') throw new Error(json.message || '오류');
+      var d = json.data;
+
+      if (d.destinasi) window._destVendorData = d.destinasi.destVendor || null;
+      if (d.vendor)    window._vendorData = d.vendor;
+
+      if (d.overview && d.overview.monthly) {
+        var months = d.overview.monthly.map(function(m){ return m.month; });
+        updateMonthOptions(months);
+      }
+
+      var totalTrips = d.overview ? d.overview.totalTrips : 0;
+      document.querySelector('.badge').textContent = '📊 Live · ' + totalTrips.toLocaleString() + ' records';
+      document.getElementById('live-status').textContent = '✅ 실시간 데이터';
+      document.getElementById('live-status').style.color = 'var(--grn)';
+      renderAll();
+    } catch(err) {
+      console.warn('Live data error:', err.message);
+      document.getElementById('live-status').textContent = '⚠ 데이터 오류: ' + err.message;
+      document.getElementById('live-status').style.color = 'var(--red)';
+      renderAll();
+    }
+  };
+
+  var script = document.createElement('script');
+  script.src = APPS_SCRIPT_URL + '?type=all&callback=' + cbName + '&_=' + Date.now();
+
+  script.onerror = function() {
+    console.warn('JSONP script error');
+    document.getElementById('live-status').textContent = '⚠ 스크립트 로드 실패';
+    document.getElementById('live-status').style.color = 'var(--red)';
+    renderAll();
+  };
+
+  document.head.appendChild(script);
+}
+
+
+function updateMonthOptions(months) {
+  YMS = months;
+  var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  YML = months.map(function(m) {
+    var parts = m.split('-');
+    return mNames[parseInt(parts[1])-1] + ' ' + parts[0].slice(2);
+  });
+
+  // 연도 드롭다운 업데이트
+  var years = [];
+  months.forEach(function(m){ var y=m.split('-')[0]; if(years.indexOf(y)<0) years.push(y); });
+  years.sort().reverse();
+  var selY = document.getElementById('sel-year');
+  selY.innerHTML = '';
+  years.forEach(function(y){
+    var opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (y === years[0]) opt.selected = true;
+    selY.appendChild(opt);
+  });
+  selYear = years[0];
+
+  // 월 드롭다운 업데이트
+  var sel = document.getElementById('sel-month');
+  sel.innerHTML = '';
+  months.slice().reverse().forEach(function(m) {
+    var opt = document.createElement('option');
+    opt.value = m;
+    var parts = m.split('-');
+    opt.textContent = mNames[parseInt(parts[1])-1] + ' ' + parts[0];
+    sel.appendChild(opt);
+  });
+
+  // Range 드롭다운 업데이트
+  ['ym1','ym2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.innerHTML = '';
+    months.forEach(function(m, i) {
+      var opt = document.createElement('option');
+      opt.value = m;
+      var parts = m.split('-');
+      opt.textContent = mNames[parseInt(parts[1])-1] + ' ' + parts[0].slice(2);
+      if (id === 'ym2' && i === months.length-1) opt.selected = true;
+      if (id === 'ym1' && i === 0) opt.selected = true;
+      el.appendChild(opt);
+    });
+  });
+
+  selMonth = months[months.length-1];
+  selYm1   = months[0];
+  selYm2   = months[months.length-1];
+
+  // Tahun 버튼 초기 상태 적용
+  document.getElementById('sel-year').style.display   = '';
+  document.getElementById('sel-month').style.display  = 'none';
+  document.getElementById('rng-inputs').style.display = 'none';
+}
+
+renderAll();
+// ══════════════════════════════════════════════
+function renderT5() {
+  // Apps Script 실시간 데이터 사용
+  var vData = window._vendorData || null;
+
+  if (!vData) {
+    document.getElementById('t5-kpi').innerHTML = kc('상태','','데이터 로딩 중...','');
+    document.getElementById('t5-matrix').innerHTML = '<div style="padding:20px;color:var(--muted);text-align:center">새로고침 버튼을 눌러 실시간 데이터를 불러오세요.</div>';
+    document.getElementById('t5-destvend').innerHTML = '';
+    return;
+  }
+
+  var vendCust = vData.vendCust || [];
+
+  // ── 현재 필터 적용 (기간 + 고객사) ──────────────
+  var yms = getYMs();
+  var filteredVC = vendCust.filter(function(r) {
+    if (yms.indexOf(r.ym) < 0) return false;
+    if (selCust && r.customer !== selCust) return false;
+    return true;
+  });
+
+  // filteredVC 에서 벤더별 재집계
+  var vendMap = {};
+  filteredVC.forEach(function(r) {
+    if (!vendMap[r.vendor]) vendMap[r.vendor] = { vendor: r.vendor, trips:0, revenue:0, cost:0, customers: new Set() };
+    vendMap[r.vendor].trips   += r.trips;
+    vendMap[r.vendor].revenue += r.revenue;
+    vendMap[r.vendor].cost    += r.cost;
+    vendMap[r.vendor].customers.add(r.customer);
+  });
+
+  var vendors = Object.values(vendMap).map(function(v) {
+    return {
+      vendor    : v.vendor,
+      trips     : v.trips,
+      revenue   : v.revenue,
+      cost      : v.cost,
+      profit    : v.revenue - v.cost,
+      margin    : v.revenue > 0 ? +((v.revenue - v.cost) / v.revenue * 100).toFixed(1) : 0,
+      custCount : v.customers.size,
+    };
+  }).sort(function(a,b){ return b.trips - a.trips; });
+
+  // 필터 안내 표시
+  var filterLabel = selCust ? ('고객사: ' + selCust) : (selProj ? '프로젝트: ' + selProj : '전체');
+
+  // ── KPI ──────────────────────────────────────
+  var totalTrips = vendors.reduce(function(a,v){ return a+v.trips; }, 0);
+  var totalSell  = vendors.reduce(function(a,v){ return a+v.revenue; }, 0);
+  var totalProfit= vendors.reduce(function(a,v){ return a+v.profit; }, 0);
+  var topVendor  = vendors.length ? vendors[0].vendor : '—';
+  var avgMargin  = totalSell > 0 ? (totalProfit/totalSell*100).toFixed(1) : '0.0';
+
+  document.getElementById('t5-kpi').innerHTML =
+    kc('필터','', filterLabel,'') +
+    kc('벤더 수','', vendors.length+'개','') +
+    kc('총 운행','', fmt(totalTrips)+'건','') +
+    kc('총 Selling','', 'Rp '+fmtM(totalSell),'') +
+    kc('총 Profit','', 'Rp '+fmtM(totalProfit),'') +
+    kc('평균 마진','', avgMargin+'%','');
+
+  // ── 차트 A: 벤더별 Trip 비중 (Top 10) ────────
+  var top10 = vendors.slice(0,10);
+  mkChart('c5a','doughnut', top10.map(function(v){ return v.vendor; }), [{
+    data: top10.map(function(v){ return v.trips; }),
+    backgroundColor: DC, borderWidth: 2
+  }], { legend: true });
+
+  // ── 차트 B: 벤더별 Selling (Top 10) ──────────
+  // ── 차트 B: 벤더별 Selling 가로 바 (벤더명=세로, 매출=가로) ──
+  if (charts['c5b']) { charts['c5b'].destroy(); delete charts['c5b']; }
+  var ctx5b = document.getElementById('c5b');
+  if (ctx5b) {
+    charts['c5b'] = new Chart(ctx5b, {
+      type: 'bar',
+      data: {
+        labels: top10.map(function(v){ return v.vendor; }),
+        datasets: [{
+          label: 'Selling (jt)',
+          data: top10.map(function(v){ return Math.round(v.revenue/1e6*10)/10; }),
+          backgroundColor: DC.map(function(c){ return c+'CC'; }),
+          borderRadius: 3
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: function(v){ return v+'jt'; }, font:{size:10} }, grid:{color:'#e5e7eb'} },
+          y: { ticks: { font:{size:10} }, grid:{display:false} }
+        }
+      }
+    });
+  }
+
+  // ── 메인 테이블: 벤더별 상세 ─────────────────
+  var maxT = vendors.length ? vendors[0].trips : 1;
+  var tbl = '<table><thead><tr>'+
+    '<th>#</th>'+
+    '<th style="min-width:120px">벤더명</th>'+
+    '<th class="th-num">운행</th>'+
+    '<th class="th-num">고객수</th>'+
+    '<th class="th-num">Selling (Rp)</th>'+
+    '<th class="th-num">Buying (Rp)</th>'+
+    '<th class="th-num">Profit (Rp)</th>'+
+    '<th class="th-num">Margin</th>'+
+    '<th style="min-width:100px">운행 비중</th>'+
+  '</tr></thead><tbody>';
+
+  vendors.forEach(function(v, i) {
+    var mColor = v.margin >= 20 ? 'var(--grn)' : v.margin >= 10 ? 'var(--amb)' : 'var(--red)';
+    tbl += '<tr>'+
+      '<td style="color:var(--muted);font-size:10px">'+(i+1)+'</td>'+
+      '<td style="font-weight:500">'+v.vendor+'</td>'+
+      '<td class="num" style="text-align:right">'+fmt(v.trips)+'</td>'+
+      '<td class="num" style="text-align:right">'+v.custCount+'개</td>'+
+      '<td class="num" style="text-align:right">'+fmt(v.revenue)+'</td>'+
+      '<td class="num" style="text-align:right">'+fmt(v.cost)+'</td>'+
+      '<td class="num '+(v.profit>=0?'pp':'pn')+'" style="text-align:right">'+fmt(v.profit)+'</td>'+
+      '<td style="text-align:right"><span style="color:'+mColor+';font-weight:600;font-family:var(--mono)">'+v.margin+'%</span></td>'+
+      '<td style="min-width:100px">'+
+        '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'+
+          '<div style="height:100%;width:'+Math.max(2,v.trips/maxT*100)+'%;background:var(--acc);border-radius:3px"></div>'+
+        '</div>'+
+      '</td>'+
+    '</tr>';
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('t5-matrix').innerHTML = tbl;
+
+  // ── 벤더×고객 상세 (펼침) ────────────────────
+  var vendorList = vendors.map(function(v){ return v.vendor; });
+  var dvTbl = '<table><thead><tr>'+
+    '<th style="min-width:120px">벤더명</th>'+
+    '<th style="min-width:130px">고객사</th>'+
+    '<th class="th-num">운행</th>'+
+    '<th class="th-num">Selling (Rp)</th>'+
+    '<th class="th-num">Profit (Rp)</th>'+
+    '<th class="th-num">Margin</th>'+
+  '</tr></thead><tbody>';
+
+  vendorList.forEach(function(vname) {
+    var vrows = filteredVC.filter(function(r){ return r.vendor === vname; });
+    if (!vrows.length) return;
+    var totT = vrows.reduce(function(a,r){ return a+r.trips; },0);
+    var totS = vrows.reduce(function(a,r){ return a+r.revenue; },0);
+    var totP = vrows.reduce(function(a,r){ return a+r.profit; },0);
+    var isOpen = expandedDV5[vname];
+
+    dvTbl += '<tr class="tg" onclick="toggleDV5(\''+vname.replace(/'/g,"\\'")+'\')">'+
+      '<td><span class="ch">'+(isOpen?'&#9660;':'&#9654;')+'</span><strong>'+vname+'</strong></td>'+
+      '<td style="color:var(--muted);font-size:11px">'+vrows.length+'개 고객사</td>'+
+      '<td class="num" style="text-align:right">'+fmt(totT)+'</td>'+
+      '<td class="num" style="text-align:right">'+fmt(totS)+'</td>'+
+      '<td class="num '+(totP>=0?'pp':'pn')+'" style="text-align:right">'+fmt(totP)+'</td>'+
+      '<td style="text-align:right">'+bdg(totP,totS)+'</td>'+
+    '</tr>';
+
+    if (isOpen) {
+      vrows.sort(function(a,b){ return b.trips-a.trips; }).forEach(function(r) {
+        dvTbl += '<tr class="ts">'+
+          '<td style="padding-left:18px;color:var(--muted)">'+vname+'</td>'+
+          '<td style="font-weight:500">'+r.customer+'</td>'+
+          '<td class="num" style="text-align:right">'+fmt(r.trips)+'</td>'+
+          '<td class="num" style="text-align:right">'+fmt(r.revenue)+'</td>'+
+          '<td class="num '+(r.profit>=0?'pp':'pn')+'" style="text-align:right">'+fmt(r.profit)+'</td>'+
+          '<td style="text-align:right">'+bdg(r.profit,r.revenue)+'</td>'+
+        '</tr>';
+      });
+    }
+  });
+  dvTbl += '</tbody></table>';
+  document.getElementById('t5-destvend').innerHTML = dvTbl;
+}
+
+
+
+function kc(label, key, val, sub) {
+  return '<div class="kc"><div class="kl">'+label+'</div><div class="kv" style="font-size:17px">'+val+'</div>'+(sub?'<div class="kd">'+sub+'</div>':'')+'</div>';
+}
+
+function fmtM(n) {
+  if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(1)+' M';
+  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1)+'jt';
+  return fmt(n);
+}
+
+// 초기 실행
+window.addEventListener("load", loadLiveData);;
+</script>
+</body>
+</html>
